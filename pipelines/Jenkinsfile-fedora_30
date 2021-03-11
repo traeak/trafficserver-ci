@@ -15,7 +15,7 @@ pipeline {
           git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
         }
         dir('ci') {
-          git branch: 'main', url: 'https://github.com/apache/trafficserver-ci.git'
+          git branch: 'fedora', url: 'https://github.com/traeak/trafficserver-ci.git'
         } 
         echo 'Finished Cloning'
       }
