@@ -24,8 +24,8 @@ pipeline {
       steps {
         echo 'Starting build'
         dir('src') {
-          sh 'source /src/trafficserver-ci/bin/environment.sh'
-          sh 'source /src/trafficserver-ci/bin/out_of_tree.sh'
+          sh 'source ../trafficserver-ci/jenkins/bin/environment.sh'
+          sh 'source ../trafficserver-ci/jenkins/bin/out_of_tree.sh'
         }
       }
     }
