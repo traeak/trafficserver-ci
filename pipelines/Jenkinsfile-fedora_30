@@ -1,5 +1,5 @@
 pipeline {
-  agent {
+  agent ('docker2') {
     docker {
       //image 'fedora:30'
       image 'controller.trafficserver.org/ats/old_ci/fedora:30'
