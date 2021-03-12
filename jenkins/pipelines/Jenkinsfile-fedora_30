@@ -25,7 +25,7 @@ pipeline {
         echo 'Starting build'
         dir('src') {
 //          sh 'source ci/jenkins/bin/environment.sh'
-          sh 'source ci/jenkins/bin/out_of_tree.sh'
+          sh 'source ci/jenkins/bin/in_tree.sh'
         }
 
 /*
