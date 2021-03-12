@@ -2,7 +2,7 @@ pipeline {
   agent ('docker2') {
     docker {
       //image 'fedora:30'
-      image 'controller.trafficserver.org/ats/fedora:30'
+      image 'controller.trafficserver.org/ats/old_ci/fedora:30'
       registryUrl 'https://controller.trafficserver.org/'
       label 'docker'
     }
