@@ -20,7 +20,7 @@
 
 cd "${WORKSPACE}/src"
 
-autoreconf -fi
+/usr/bin/autoreconf -fi
 mkdir -p BUILDS && cd BUILDS
 ../configure \
     --with-user=jenkins \
@@ -31,8 +31,6 @@ mkdir -p BUILDS && cd BUILDS
 
 #    --enable-ccache \
 
-PROCS=`nproc`
-
-${ATS_MAKE} -j${PROCS} V=1
+${ATS_MAKE} -j4 V=1
 #${ATS_MAKE} check VERBOSE=Y
 ${ATS_MAKE} clean
