@@ -24,16 +24,19 @@ pipeline {
       steps {
         echo 'Starting build'
         dir('src') {
+          sh 'source ci/jenkins/bin/environment.sh'
+          sh 'source ci/jenkins/bin/out_of_tree.sh'
+
+/*
+        dir('src') {
             sh 'autoreconf -if'
             sh 'mkdir BUILDS'
-            sh 'source ci/jenkins/bin/environment.sh'
-//          sh 'source ci/jenkins/bin/environment.sh && \
-//            source ci/jenkins/bin/out_of_tree.sh'
         }
         dir('src/BUILDS') {
           sh '../configure --enable-werror --enable-experimental-plugins --enable-example-plugins --enable-wccp'
           sh 'make -j4'
         }
+*/
       }
     }
   }
