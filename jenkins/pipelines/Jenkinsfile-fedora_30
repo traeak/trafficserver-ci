@@ -24,7 +24,7 @@ pipeline {
       steps {
         echo 'Starting build'
         dir('src') {
-            sh 'autoreconf -if && configure && make -j4'
+            sh 'autoreconf -if && ./configure && make -j4'
 //          sh 'source ci/jenkins/bin/environment.sh && \
 //            source ci/jenkins/bin/out_of_tree.sh'
         }
