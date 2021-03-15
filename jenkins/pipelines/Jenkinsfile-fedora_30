@@ -23,12 +23,13 @@ pipeline {
     stage('Build') {
       steps {
         echo 'Starting build'
+/*
         dir('src') {
-//          sh 'source ci/jenkins/bin/environment.sh'
+          sh 'source ci/jenkins/bin/environment.sh'
           sh 'source ci/jenkins/bin/in_tree.sh'
         }
+*/
 
-/*
         dir('src') {
             sh 'autoreconf -if'
             sh 'mkdir BUILDS'
@@ -37,7 +38,6 @@ pipeline {
           sh '../configure --enable-werror --enable-experimental-plugins --enable-example-plugins --enable-wccp'
           sh 'make -j4'
         }
-*/
       }
     }
   }
