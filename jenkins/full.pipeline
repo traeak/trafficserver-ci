@@ -15,7 +15,7 @@ pipeline {
 	  steps {
             dir('src') {
               git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
-	      sh 'autoreconf -fiv
+	      sh 'autoreconf -fiv'
               sh 'source ci/jenkins/bin/environment.sh && source ci/jenkins/bin/in_tree.sh'
 	    }
 	  }
