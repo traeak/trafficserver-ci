@@ -7,8 +7,7 @@ pipeline {
 
   stages {
     stage('Simple Build Verification') {
-      parallel {
-
+//      parallel {
         stage('In Tree Build') {
           agent {
             docker {
@@ -26,7 +25,6 @@ pipeline {
 	  }
 	}
 
-/*
         stage('Out of Tree Build') {
           agent {
             docker {
@@ -43,8 +41,7 @@ pipeline {
 	    }
 	  }
 	}
-*/
-      }
+//      }
     }
   }
   post { 
