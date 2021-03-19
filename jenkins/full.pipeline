@@ -1,0 +1,50 @@
+pipeline {
+  agent none
+
+  stages {
+    stage('Simple Build Verification') {
+      parallel {
+
+        stage('In Tree Build') {
+          agent {
+            docker {
+              image 'controller.trafficserver.org/ats/ci/fedora:32'
+              registryUrl 'https://controller.trafficserver.org/'
+	    }
+          }
+	  steps {
+            dir('src') {
+              git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
+	      sh 'autoreconf -fiv
+              sh 'source ci/jenkins/bin/environment.sh && source ci/jenkins/bin/in_tree.sh'
+	    }
+	  }
+	}
+
+        stage('Out of Tree Build') {
+          agent {
+            docker {
+              image 'controller.trafficserver.org/ats/ci/fedora:32'
+              registryUrl 'https://controller.trafficserver.org/'
+	    }
+          }
+	  steps {
+            dir('src') {
+              git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
+	      sh 'autoreconf -fiv'
+	      sh 'mkdir BUILDS'
+	    }
+	    dir('src/BUILDS') {
+              sh 'source ../ci/jenkins/bin/environment.sh && source ../ci/jenkins/bin/in_tree.sh'
+	    }
+	  }
+	}
+      }
+    }
+  }
+  post { 
+    cleanup { 
+      cleanWs()
+    }
+  }
+}
