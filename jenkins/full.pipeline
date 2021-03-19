@@ -21,8 +21,7 @@ pipeline {
 	  steps {
             dir('src') {
               git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
-              sh 'source ci/jenkins/bin/environment.sh'
-              sh 'source ci/jenkins/bin/in_tree.sh'
+              sh 'source ci/jenkins/bin/environment.sh && source ci/jenkins/bin/in_tree.sh'
 	    }
 	  }
 	}
@@ -39,8 +38,7 @@ pipeline {
 	  steps {
             dir('src') {
               git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
-              sh 'source ci/jenkins/bin/environment.sh'
-              sh 'source ci/jenkins/bin/in_tree.sh'
+              sh 'source ci/jenkins/bin/environment.sh && source ci/jenkins/bin/in_tree.sh'
 	    }
 	  }
 	}
