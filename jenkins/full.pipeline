@@ -26,6 +26,7 @@ pipeline {
 	  }
 	}
 
+/*
         stage('Out of Tree Build') {
           agent {
             docker {
@@ -42,6 +43,7 @@ pipeline {
 	    }
 	  }
 	}
+*/
       }
     }
   }
