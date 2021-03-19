@@ -6,7 +6,7 @@ pipeline {
   }
 
   stages {
-    stage('Simple Build Verification') {
+//    stage('Simple Build Verification') {
 //      parallel {
         stage('In Tree Build') {
           agent {
@@ -42,7 +42,7 @@ pipeline {
 	  }
 	}
 //      }
-    }
+//    }
   }
   post { 
     cleanup { 
