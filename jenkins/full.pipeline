@@ -1,12 +1,9 @@
 pipeline {
   agent none
 
-  environment {
-    CCACHE_DIR = "/tmp/ccache"
-  }
-
   stages {
     stage('In Tree Build') {
+
       agent {
         docker {
           image 'ats/ci/fedora:32'
@@ -14,6 +11,11 @@ pipeline {
           args '-v /home/rooter/ccache:/tmp/ccache:rw'
         }
       }
+
+      environment {
+        CCACHE_DIR = "/tmp/ccache"
+      }
+
       steps {
         dir('src') {
           git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
