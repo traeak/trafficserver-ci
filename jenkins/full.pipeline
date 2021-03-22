@@ -13,6 +13,7 @@ pipeline {
       }
 
       environment {
+        CCACHE_BASEDIR = "/tmp/ccache"
         CCACHE_DIR = "/tmp/ccache"
       }
 
