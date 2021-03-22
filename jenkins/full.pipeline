@@ -8,19 +8,20 @@ pipeline {
 
   stages {
     stage('In Tree Build') {
-
-      agent {
-        docker {
-          image 'ats/ci/fedora:32'
-          registryUrl 'https://controller.trafficserver.org/'
-          args '-v /home/rooter/ccache:/tmp/ccache:rw'
+      node {
+        agent {
+          docker {
+            image 'ats/ci/fedora:32'
+            registryUrl 'https://controller.trafficserver.org/'
+            args '-v /home/rooter/ccache:/tmp/ccache:rw'
+          }
         }
-      }
 
-      steps {
-        dir('src') {
-          git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
-          sh 'source ci/jenkins/bin/environment.sh && source ci/jenkins/bin/in_tree.sh'
+        steps {
+          dir('src') {
+            git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
+            sh 'source ci/jenkins/bin/environment.sh && source ci/jenkins/bin/in_tree.sh'
+          }
         }
       }
     }
