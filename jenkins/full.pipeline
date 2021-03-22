@@ -9,10 +9,9 @@ pipeline {
     stage('In Tree Build') {
       agent {
         docker {
-          image 'controller.trafficserver.org/ats/ci/fedora:32'
+          image 'ats/ci/fedora:32'
           registryUrl 'https://controller.trafficserver.org/'
           args '-v /home/rooter/ccache:/tmp/ccache:rw'
-          label "linux"
         }
       }
       steps {
