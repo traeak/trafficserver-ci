@@ -7,8 +7,8 @@ pipeline {
   }
 
   stages {
-    stage('In Tree Build') {
-      node {
+    node {
+      stage('In Tree Build') {
         agent {
           docker {
             image 'ats/ci/fedora:32'
