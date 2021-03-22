@@ -14,6 +14,7 @@ pipeline {
                 docker { image 'node:14-alpine' }
             }
             steps {
+                // this fails due to bash missing???
                 sh 'node --version'
             }
         }
