@@ -29,6 +29,6 @@ autoreconf -fi
     --enable-example-plugins \
     --enable-wccp
 
-${ATS_MAKE} -j5 V=1
+${ATS_MAKE} ${ATS_MAKE_FLAGS} V=1
 #${ATS_MAKE} check VERBOSE=Y
 ${ATS_MAKE} clean

@@ -22,9 +22,9 @@ mkdir -p "${ATS_BUILD_BASEDIR}/build"
 mkdir -p "${ATS_BUILD_BASEDIR}/install"
 
 cd "${ATS_BUILD_BASEDIR}/build"
-echo "Artifact: ${ATS_SRC_HOME}/trafficserver-${ATS_BRANCH}.tar.bz2"
-tar xf ${ATS_SRC_HOME}/trafficserver-${ATS_BRANCH}.tar.bz2
-mv trafficserver-*/* .
+#echo "Artifact: ${ATS_SRC_HOME}/trafficserver-${ATS_BRANCH}.tar.bz2"
+#tar xf ${ATS_SRC_HOME}/trafficserver-${ATS_BRANCH}.tar.bz2
+#mv trafficserver-*/* .
 
 echo "build: ${ATS_BUILD_BASEDIR}/build"
 echo "install: ${ATS_BUILD_BASEDIR}/install"

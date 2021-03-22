@@ -38,7 +38,7 @@ echo "WERROR: $WERROR"
 echo "ASAN: $ASAN"
 
 # Change to the build area (this is previously setup in extract.sh)
-cd "${ATS_BUILD_BASEDIR}/build"
+#cd "${ATS_BUILD_BASEDIR}/build"
 mkdir -p BUILDS && cd BUILDS
 
 # Restore verbose shell output

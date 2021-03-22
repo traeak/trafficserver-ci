@@ -120,7 +120,7 @@ echo "CXX: $CXX"
 $CXX -v
 
 # Figure out parallelism for regular builds / bots
-export ATS_MAKE_FLAGS="-j6"
+export ATS_MAKE_FLAGS="-j4"
 if [ "yes" == "$IS_DOCKER" ]; then
     export ATS_BUILD_BASEDIR="${WORKSPACE}"
 else
@@ -128,7 +128,7 @@ else
 fi
 
 # ccache settings
-export CCACHE_BASEDIR=${ATS_BUILD_BASEDIR}
+#export CCACHE_BASEDIR=${ATS_BUILD_BASEDIR}
 #export CCACHE_COMPRESS=true
 
 # Restore verbose shell output
