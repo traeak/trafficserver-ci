@@ -6,8 +6,10 @@ pipeline {
   }
 
   stages {
-//    stage('Simple Build Verification') {
-//      parallel {
+/*
+    stage('Simple Build Verification') {
+      parallel {
+*/
         stage('In Tree Build') {
           agent {
             docker {
@@ -25,6 +27,7 @@ pipeline {
 	  }
 	}
 
+/*
         stage('Out of Tree Build') {
           agent {
             docker {
@@ -41,8 +44,9 @@ pipeline {
 	    }
 	  }
 	}
-//      }
-//    }
+*/
+      }
+    }
   }
   post { 
     cleanup { 
