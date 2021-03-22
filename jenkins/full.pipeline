@@ -15,11 +15,11 @@ pipeline {
           label "linux"
         }
       }
-    }
-    steps {
-      dir('src') {
-        git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
-        sh 'source ci/jenkins/bin/environment.sh && source ci/jenkins/bin/in_tree.sh'
+      steps {
+        dir('src') {
+          git 'http://jenkins.trafficserver.org/mirror/trafficserver.git'
+          sh 'source ci/jenkins/bin/environment.sh && source ci/jenkins/bin/in_tree.sh'
+        }
       }
     }
   }
