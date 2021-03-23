@@ -55,6 +55,7 @@ set -x
     ${ASAN}
 
 echo
-echo -n "Main build started at " && date
+echo -n "Main build and install started at " && date
 ${ATS_MAKE} ${ATS_MAKE_FLAGS} V=1 Q= || exit 1
-echo -n "Main build finished at " && date
+${ATS_MAKE} ${ATS_MAKE_FLAGS} install
+echo -n "Main build and install at " && date
