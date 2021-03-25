@@ -42,7 +42,7 @@ echo "Workspace is: " $WORKSPACE
 # Check if we need to use a different "make"
 ATS_MAKE=make
 PLATFORM=${PLATFORM:=linux}
-[ "freebsd" != "${PLATFORM}" ] && ATS_MAKE="gmake"
+[ "freebsd" == "${PLATFORM}" ] && ATS_MAKE="gmake"
 export ATS_MAKE
 
 # Useful for timestamps etc. for daily runs
