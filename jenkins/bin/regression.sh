@@ -22,7 +22,7 @@
 
 echo
 echo -n "Unit tests started at " && date
-${ATS_MAKE} -j2 check VERBOSE=Y V=1 || exit 1
+${ATS_MAKE} -j4 check VERBOSE=Y V=1 || exit 1
 echo -n "Unit tests finished at " && date
 ${ATS_MAKE} install || exit 1
 
