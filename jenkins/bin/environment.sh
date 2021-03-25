@@ -79,9 +79,9 @@ echo "Branch is $ATS_BRANCH"
 #test "${JOB_NAME#*compiler=clang}" != "${JOB_NAME}" && enable_clang=1
 
 COMPILER=${COMPILER:=gcc}
-[ "${COMPILER}" == "clang" && enable_clang=1
-[ "${COMPILER}" == "icc" && enable_icc=1
-[ "${COMPILER}" == "gcc" && enable_gcc=1
+[ "${COMPILER}" == "clang" ] && enable_clang=1
+[ "${COMPILER}" == "icc" ] && enable_icc=1
+[ "${COMPILER}" == "gcc" ] && enable_gcc=1
 
 if [ "1" == "$enable_clang" ]; then
     export CC="clang"
