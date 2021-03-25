@@ -22,7 +22,8 @@ printenv
 
 # Check if it's a debug or release build
 DEBUG=""
-test "${JOB_NAME#*type=debug}" != "${JOB_NAME}" && DEBUG="--enable-debug"
+#test "${JOB_NAME#*type=debug}" != "${JOB_NAME}" && DEBUG="--enable-debug"
+[ "${BUILD}" == "debug" ] && DEBUG="--enable-debug"
 
 # When to turn on ccache, disabled for some builds
 CCACHE="--enable-ccache"

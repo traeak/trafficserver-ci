@@ -52,3 +52,11 @@ centos7:
 
 centos8:
 	docker build -t ats_$@ --build-arg OS_VERSION=8 --build-arg OS_TYPE=centos --network=host yum/
+
+ubuntu: ubuntu20.04 ubuntu18.04
+
+ubuntu18.04:
+	docker build -t ats_$@ --build-arg OS_VERSION=18.04 --build-arg OS_TYPE=ubuntu --network=host deb/
+
+ubuntu20.04:
+	docker build -t ats_$@ --build-arg OS_VERSION=20.04 --build-arg OS_TYPE=ubuntu --network=host deb/

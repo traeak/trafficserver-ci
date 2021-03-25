@@ -34,14 +34,15 @@ WORKSPACE="${WORKSPACE:=${PWD}}"
 echo "Workspace is: " $WORKSPACE
 
 # Shouldn't have to tweak this
-export ATS_SRC_HOME="/home/jenkins/src"
+#export ATS_SRC_HOME="/home/jenkins/src"
 
 # Check if we're doing Debian style hardening
-test "${JOB_NAME#*type=hardening}" != "${JOB_NAME}" && export DEB_BUILD_HARDENING=1
+#test "${JOB_NAME#*type=hardening}" != "${JOB_NAME}" && export DEB_BUILD_HARDENING=1
 
 # Check if we need to use a different "make"
 ATS_MAKE=make
-test "${JOB_NAME#freebsd*}" != "${JOB_NAME}" && ATS_MAKE="gmake"
+PLATFORM=${PLATFORM:=linux}
+[ "freebsd" != "${PLATFORM}" ] && ATS_MAKE="gmake"
 export ATS_MAKE
 
 # Useful for timestamps etc. for daily runs
@@ -51,45 +52,40 @@ export TODAY=$(/bin/date +'%m%d%Y')
 ATS_BRANCH=master
 
 # Make sure to leave these, for the HTTP cache tests
-test "${JOB_NAME#*-5.3.x}" != "${JOB_NAME}" && ATS_BRANCH=5.3.x
-test "${JOB_NAME#*-6.2.x}" != "${JOB_NAME}" && ATS_BRANCH=6.2.x
+#test "${JOB_NAME#*-5.3.x}" != "${JOB_NAME}" && ATS_BRANCH=5.3.x
+#test "${JOB_NAME#*-6.2.x}" != "${JOB_NAME}" && ATS_BRANCH=6.2.x
 
 # These should be maintained and cleaned up as needed.
-test "${JOB_NAME#*-7.1.x}" != "${JOB_NAME}" && ATS_BRANCH=7.1.x
-test "${JOB_NAME#*-8.0.x}" != "${JOB_NAME}" && ATS_BRANCH=8.0.x
-test "${JOB_NAME#*-8.1.x}" != "${JOB_NAME}" && ATS_BRANCH=8.1.x
-test "${JOB_NAME#*-9.0.x}" != "${JOB_NAME}" && ATS_BRANCH=9.0.x
-test "${JOB_NAME#*-9.1.x}" != "${JOB_NAME}" && ATS_BRANCH=9.1.x
-test "${JOB_NAME#*-9.2.x}" != "${JOB_NAME}" && ATS_BRANCH=9.2.x
-test "${JOB_NAME#*-9.3.x}" != "${JOB_NAME}" && ATS_BRANCH=9.3.x
-test "${JOB_NAME#*-10.0.x}" != "${JOB_NAME}" && ATS_BRANCH=10.0.x
-test "${JOB_NAME#*-10.1.x}" != "${JOB_NAME}" && ATS_BRANCH=10.1.x
-test "${JOB_NAME#*-10.2.x}" != "${JOB_NAME}" && ATS_BRANCH=10.2.x
-test "${JOB_NAME#*-10.3.x}" != "${JOB_NAME}" && ATS_BRANCH=10.3.x
+#test "${JOB_NAME#*-7.1.x}" != "${JOB_NAME}" && ATS_BRANCH=7.1.x
+#test "${JOB_NAME#*-8.0.x}" != "${JOB_NAME}" && ATS_BRANCH=8.0.x
+#test "${JOB_NAME#*-8.1.x}" != "${JOB_NAME}" && ATS_BRANCH=8.1.x
+#test "${JOB_NAME#*-9.0.x}" != "${JOB_NAME}" && ATS_BRANCH=9.0.x
+#test "${JOB_NAME#*-9.1.x}" != "${JOB_NAME}" && ATS_BRANCH=9.1.x
+#test "${JOB_NAME#*-9.2.x}" != "${JOB_NAME}" && ATS_BRANCH=9.2.x
+#test "${JOB_NAME#*-9.3.x}" != "${JOB_NAME}" && ATS_BRANCH=9.3.x
+#test "${JOB_NAME#*-10.0.x}" != "${JOB_NAME}" && ATS_BRANCH=10.0.x
+#test "${JOB_NAME#*-10.1.x}" != "${JOB_NAME}" && ATS_BRANCH=10.1.x
+#test "${JOB_NAME#*-10.2.x}" != "${JOB_NAME}" && ATS_BRANCH=10.2.x
+#test "${JOB_NAME#*-10.3.x}" != "${JOB_NAME}" && ATS_BRANCH=10.3.x
 
 # Special case for the full build of clang analyzer
-test "${JOB_NAME}" == "clang-analyzer-full" && ATS_BRANCH=FULL
+#test "${JOB_NAME}" == "clang-analyzer-full" && ATS_BRANCH=FULL
 
 export ATS_BRANCH
 echo "Branch is $ATS_BRANCH"
 
 # If the job name includes the string "clang", force clang. This can also be set
 # explicitly for specific jobs.
-test "${JOB_NAME#*compiler=clang}" != "${JOB_NAME}" && enable_clang=1
+#test "${JOB_NAME#*compiler=clang}" != "${JOB_NAME}" && enable_clang=1
+
+COMPILER=${COMPILER:=gcc}
+[ "${COMPILER}" == "clang" && enable_clang=1
+[ "${COMPILER}" == "icc" && enable_icc=1
+[ "${COMPILER}" == "gcc" && enable_gcc=1
 
 if [ "1" == "$enable_clang" ]; then
-    if [ -x "/usr/local/bin/clang++50" ]; then
-        # For FreeBSD 11.1 or earlier *NOT* recommended since libc++ is LLVM 4.0
-        export CC="/usr/local/bin/clang50"
-        export CXX="/usr/local/bin/clang++50"
-    elif [ -x "/usr/bin/clang++-5.0" ]; then
-        # For Ubuntu 17.x
-        export CC="/usr/bin/clang-5.0"
-        export CXX="/usr/bin/clang++-5.0"
-    else
-        export CC="clang"
-        export CXX="clang++"
-    fi
+    export CC="clang"
+    export CXX="clang++"
     export CXXFLAGS="-Qunused-arguments"
     export WITH_LIBCPLUSPLUS="yes"
 elif [ "1" == "$enable_icc" ]; then
