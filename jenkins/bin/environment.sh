@@ -30,8 +30,12 @@ echo -n "Build platform: "
 [ -f /etc/redhat-release ] && cat /etc/redhat-release
 echo "Build on Docker: " $IS_DOCKER
 
+# Jenkins workspace
 WORKSPACE="${WORKSPACE:=${PWD}}"
 echo "Workspace is: " $WORKSPACE
+
+# ccache dir as mounted in container
+CCACHE_DIR="${CCACHE_DIR:=/tmp/ccache}"
 
 # Shouldn't have to tweak this
 #export ATS_SRC_HOME="/home/jenkins/src"
