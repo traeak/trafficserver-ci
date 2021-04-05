@@ -24,6 +24,8 @@ printenv
 DEBUG=""
 #test "${JOB_NAME#*type=debug}" != "${JOB_NAME}" && DEBUG="--enable-debug"
 [ "${TYPE}" == "debug" ] && DEBUG="--enable-debug"
+HARDENING=""
+[ "${TYPE}" == "hardening" ] && HARDENING="--enable-hardening"
 
 # When to turn on ccache, disabled for some builds
 CCACHE="--enable-ccache"
@@ -56,6 +58,7 @@ set -x
     ${CCACHE} \
     ${WERROR} \
     ${DEBUG} \
+    ${HARDENING} \
     ${ASAN}
 
 echo
