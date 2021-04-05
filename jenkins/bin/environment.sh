@@ -41,6 +41,7 @@ CCACHE_DIR="${CCACHE_DIR:=/tmp/ccache}"
 #export ATS_SRC_HOME="/home/jenkins/src"
 
 # Check if we're doing Debian style hardening
+[ "hardening" == "${TYPE}" ] && export DEB_BUILD_HARDENING=1
 #test "${JOB_NAME#*type=hardening}" != "${JOB_NAME}" && export DEB_BUILD_HARDENING=1
 
 # Check if we need to use a different "make"
