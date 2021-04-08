@@ -1,0 +1,62 @@
+pipeline {
+  agent {
+    docker {
+      image 'ats/${DISTRO}'
+      args '-v /home/rooter/ccache:/tmp/ccache:rw'
+      label 'linux'
+    }
+  }
+  environment {
+    CCACHE_DIR = "/tmp/ccache"
+  }
+  /*
+  options {
+    ansiColor('xterm')
+  }
+  */
+  stages {
+    stage('Initializaztion') {
+      steps {
+        script {
+          currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH} ${DISTRO} ${COMPILER} ${TYPE}"
+        }
+      }
+    }
+    stage('Clone') {
+      steps {
+        echo 'Starting Clone'
+        dir('ci') {
+          git branch: 'full_pipeline', url: 'https://github.com/traeak/trafficserver-ci'
+        }
+        dir('src') {
+          git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
+        }
+        echo 'Finished Clone'
+      }
+    }
+    stage('Build') {
+      steps {
+        echo 'Starting Build'
+        dir('src') {
+          //sh('source ../ci/jenkins/bin/environment.sh && autoreconf -if && ../ci/jenkins/bin/build.sh')
+        }
+        echo 'Finished Build'
+      }
+    }
+    stage('Tests') {
+      steps {
+        echo 'Starting Tests'
+        dir('src') {
+          //sh('source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/regression.sh')
+        }
+        echo 'Skipping Tests'
+        echo 'Finished Tests'
+      }
+    }
+  }
+  post {
+    cleanup {
+      cleanWs()
+    }
+  }
+}

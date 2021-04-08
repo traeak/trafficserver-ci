@@ -2,7 +2,7 @@ def parallelTasks() {
   def buildjobs = [
     [ 'centos:7', 'gcc', 'release' ],
     [ 'centos:7', 'gcc', 'debug' ],
-    /*
+
     [ 'centos:8', 'gcc', 'debug' ],
     [ 'centos:8', 'clang', 'release' ],
 
@@ -15,11 +15,10 @@ def parallelTasks() {
     [ 'ubuntu:18.04', 'clang', 'debug' ],
     [ 'ubuntu:20.04', 'gcc', 'debug' ],
     [ 'ubuntu:20.04', 'clang', 'release' ],
-    */
-    /*
+
     [ 'debian:9', 'gcc', 'release' ],
     [ 'debian:9', 'clang', 'debug' ],
-    */
+
     [ 'debian:10', 'gcc', 'debug' ],
     [ 'debian:10', 'clang', 'release' ],
     [ 'debian:10', 'clang', 'hardening' ],
@@ -49,37 +48,41 @@ def parallelTasks() {
   parallel builders
 }
 
-String buildTreeJob(String ghcontext, String jobName, String url, String branch) {
-    echo "Build of '${jobName}-${branch}'"
+String validateJob(String ghcontext, String jobName) {
+    echo "Build of '${jobName}-${GITHUB_BRANCH}'"
     def jobBuild = build job: jobName, propagate: false,
         parameters: [
-            string(name: 'GITHUB_URL', value: url),
-            string(name: 'GITHUB_BRANCH', value: branch),
+            string(name: 'GITHUB_URL', value: env.GITHUB_URL),
+            string(name: 'GITHUB_BRANCH', value: env.GITHUB_BRANCH)
         ]
     def jobResult = jobBuild.getResult()
-    echo "Build of '${jobName}-${branch}' returned result: ${jobResult}"
+    echo "Build of '${jobName}-${GITHUB_BRANCH}' returned result: ${jobResult}"
     return jobResult
 }
 
-String buildOSJob(String ghcontext, String jobName, String distro, String compiler, String type) {
-    echo "Build of '${jobName}-${distro}-${compiler}-${type}'"
+String buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
+    echo "Build of '${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}'"
     def jobBuild = build job: jobName, propagate: false,
         parameters: [
+            string(name: 'GITHUB_URL', value: GITHUB_URL),
+            string(name: 'GITHUB_BRANCH', value: GITHUB_BRANCH),
             string(name: 'DISTRO', value: distro),
             string(name: 'COMPILER', value: compiler),
             string(name: 'TYPE', value: type)
         ]
     def jobResult = jobBuild.getResult()
-    echo "Build of '${jobName}-${distro}-${compiler}-${type}' returned result: ${jobResult}"
+    echo "Build of '${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}' returned result: ${jobResult}"
     return jobResult
 }
 
 pipeline {
   agent none
 
+/*
   options {
     parallelsAlwaysFailFast()
   }
+*/
 
   stages {
     stage('Initialization') {
@@ -90,21 +93,76 @@ pipeline {
       }
     }
 
-    stage('Initial Builds') {
+    stage('Validation') {
       parallel {
         stage('In Tree') {
           steps {
-            buildTreeJob('in_tree', 'BNO/in_tree', GITHUB_URL, GITHUB_BRANCH)
+            script {
+              result = validateJob('in_tree', 'BNO/in_tree')
+              if ('FAILURE' == result) { error("in tree build failed") }
+            }
           }
         }
         stage('Out Of Tree') {
           steps {
-            buildTreeJob('out_of_tree', 'BNO/out_of_tree', GITHUB_URL, GITHUB_BRANCH)
+            script {
+              result = validateJob('out_of_tree', 'BNO/out_of_tree')
+              if ('FAILURE' == result) { error("out of tree build failed") }
+            }
           }
         }
         stage('RAT') {
           steps {
-            buildTreeJob('rat', 'BNO/rat', GITHUB_URL, GITHUB_BRANCH)
+            script {
+              result = validateJob('rat', 'BNO/rat')
+              if ('FAILURE' == result) { error("rat build failed") }
+            }
+          }
+        }
+        stage('clang-format') {
+          steps {
+            script {
+              result = validateJob('clang-format', 'BNO/clang-format')
+              if ('FAILURE' == result) { error("clang-format build failed") }
+            }
+          }
+        }
+      }
+    }
+    
+    stage('Snapshot') {
+      steps {
+        script {
+          result = validateJob('snapshot', 'BNO/snapshot')
+          if ('FAILURE' == result) { error("snapshot failed") }
+        }
+      }
+    }
+    
+    stage('OS Builds') {
+      steps {
+        script {
+          parallelTasks()
+        }
+      }
+    }
+    
+    stage('Verification') {
+      parallel {
+        stage('clang-analyzer') {
+          steps {
+            script {
+                /*
+              result = validateJob('clang-analyzer', 'BNO/clang-analyzer')
+              if ('FAILURE' == result) { error("clang-analyzer failed") }
+                */
+              echo "skipping clang-analyzer"
+            }
+          }
+        }
+        stage('autests') {
+          steps {
+            echo "skipping autest"
           }
         }
       }
