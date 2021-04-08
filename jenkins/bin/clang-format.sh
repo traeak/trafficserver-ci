@@ -26,9 +26,9 @@ if [ "1" != "$?" ]; then
     echo "Error: Please run: git grep -IE ' +$'"
     exit 1
 fi
-echo "Success! No trailing whitespace"
 
-# Make sure there are no DOS shit here.
+echo "Success! No trailing whitespace"
+# Unix format please!
 git grep -IE $'\r$' | fgrep -v 'lib/yamlcpp'
 if [ "1" != "$?" ]; then
     echo "Error: Please make sure to run dos2unix on the above file(s)"

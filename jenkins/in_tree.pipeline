@@ -24,9 +24,12 @@ pipeline {
     
     stage('Clone') {
       steps {
+        dir('ci') {
+          git url: 'https://github.com/traeak/trafficserver-ci',
+            branch: 'full_pipeline'
+        }
         dir('src') {
-          git url: env.GITHUB_URL,
-            branch: env.GITHUB_BRANCH
+          git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
         }
       }
     }
@@ -35,8 +38,8 @@ pipeline {
       steps {
         dir('src') {
           echo "Building"
-          sleep 10
-          //sh 'source ci/jenkins/bin/environment.sh && ci/jenkins/bin/in_tree.sh'
+          sleep 5
+          //sh 'source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/in_tree.sh'
         }
       }
     }
