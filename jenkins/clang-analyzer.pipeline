@@ -1,60 +1,60 @@
 pipeline {
-	agent {
-		docker {
-			image 'ats/ubuntu:20.04'
-			registryUrl 'https://controller.trafficserver.org/'
-			args '-v /home/rooter/clang-analyzer:/tmp/clang-analyzer:rw'
-			label 'docker'
-		}
-	}
+  agent {
+    docker {
+      image 'ats/ubuntu:20.04'
+      registryUrl 'https://controller.trafficserver.org/'
+      args '-v /home/rooter/clang-analyzer:/tmp/clang-analyzer:rw'
+      label 'docker'
+    }     
+  }     
 
-	stages {
-		stage('Initialization') {
-			steps {
-				script {
-					currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
-					//currentBuild.description = "The best description."
-				}
-			}
-		}
+  stages {
+    stage('Initialization') {
+      steps {
+        script {
+          currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
+          //currentBuild.description = "The best description."
+        }
+      }
+    }
 
-		stage('Clone') {
-			steps {
-				dir('ci') {
-					git url: 'https://github.com/traeak/trafficserver-ci',
-						branch: 'full_pipeline'
-				}
-				dir('src') {
-					git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
-				}
+    stage('Clone') {
+      steps {
+        dir('ci') {
+          git url: 'https://github.com/traeak/trafficserver-ci',
+            branch: 'full_pipeline'
+        }   
+        dir('src') {
+          git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
+        }
 
-				echo 'Finished Cloning'
-			}
-		}
-		stage('Build') {
-			steps {
-				echo 'Starting build'
-				dir('src') {
-					sh '''
-					enable_clang=1
-					export PATH=/opt/llvm/bin:${PATH}
-					source ../ci/jenkins/bin/environment.sh
-					source ../ci/jenkins/bin/clang-analyzer.sh
+        echo 'Finished Cloning'
+      }
+    }
+    stage('Build') {
+      steps {
+        echo 'Starting build'
+        dir('src') {
+          sh '''
+          enable_clang=1
+          export PATH=/opt/llvm/bin:${PATH}
+          source ../ci/jenkins/bin/environment.sh
+          source ../ci/jenkins/bin/clang-analyzer.sh
 
-					# $status gets set in the clang-analyzer.sh script
-					exit $status
-					'''
-				}
-			}
-		}
-	}
-	
-	post { 
-		always {
-			archiveArtifacts artifacts: 'output/**/*', fingerprint: true, allowEmptyArchive: true
-		}
-		cleanup { 
-			cleanWs()
-		}
-	}
+          # $status gets set in the clang-analyzer.sh script
+          exit $status
+          '''
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: 'output/**/*', fingerprint: true, allowEmptyArchive: true
+    }
+    cleanup {
+      cleanWs()
+    }
+  }
 }

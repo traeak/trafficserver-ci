@@ -36,7 +36,7 @@ def parallelTasks() {
     builders[jobName] = {
       stage(jobName) {
         script {
-          result = buildJob(jobName, 'BNO/OS_Build', distro, compiler, type)
+          result = buildJob(jobName, 'Branch_Builds/OS_Build', distro, compiler, type)
            if (result == 'FAILURE') {
             error("${jobName} build failed")
           }
@@ -98,7 +98,7 @@ pipeline {
         stage('In Tree') {
           steps {
             script {
-              result = validateJob('in_tree', 'BNO/in_tree')
+              result = validateJob('in_tree', 'Branch_Builds/in_tree')
               if ('FAILURE' == result) { error("in tree build failed") }
             }
           }
@@ -106,7 +106,7 @@ pipeline {
         stage('Out Of Tree') {
           steps {
             script {
-              result = validateJob('out_of_tree', 'BNO/out_of_tree')
+              result = validateJob('out_of_tree', 'Branch_Builds/out_of_tree')
               if ('FAILURE' == result) { error("out of tree build failed") }
             }
           }
@@ -114,7 +114,7 @@ pipeline {
         stage('RAT') {
           steps {
             script {
-              result = validateJob('rat', 'BNO/rat')
+              result = validateJob('rat', 'Branch_Builds/rat')
               if ('FAILURE' == result) { error("rat build failed") }
             }
           }
@@ -122,7 +122,7 @@ pipeline {
         stage('clang-format') {
           steps {
             script {
-              result = validateJob('clang-format', 'BNO/clang-format')
+              result = validateJob('clang-format', 'Branch_Builds/clang-format')
               if ('FAILURE' == result) { error("clang-format build failed") }
             }
           }
@@ -133,7 +133,7 @@ pipeline {
     stage('Snapshot') {
       steps {
         script {
-          result = validateJob('snapshot', 'BNO/snapshot')
+          result = validateJob('snapshot', 'Branch_Builds/snapshot')
           if ('FAILURE' == result) { error("snapshot failed") }
         }
       }
@@ -153,7 +153,7 @@ pipeline {
           steps {
             script {
                 /*
-              result = validateJob('clang-analyzer', 'BNO/clang-analyzer')
+              result = validateJob('clang-analyzer', 'Branch_Builds/clang-analyzer')
               if ('FAILURE' == result) { error("clang-analyzer failed") }
                 */
               echo "skipping clang-analyzer"
@@ -162,7 +162,13 @@ pipeline {
         }
         stage('autests') {
           steps {
-            echo "skipping autest"
+            script {
+                /*
+              result = validateJob('autest', 'Branch_Builds/autest')
+              if ('FAILURE' == result) { error("clang-analyzer failed") }
+                */
+              echo "skipping autest"
+            }
           }
         }
       }

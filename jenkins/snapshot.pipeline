@@ -1,12 +1,16 @@
 pipeline {
   agent {
     docker {
-      image 'controller.trafficserver.org/ats/docs_build:30'
+      //image 'fedora:30'
+      image 'ats/fedora:32'
       registryUrl 'https://controller.trafficserver.org/'
-      label 'docker'
-      // We need host networking for clang-format to download
-      args '--network host'
+      args '-v /home/rooter/ccache:/tmp/ccache:rw'
+      label 'master'
     }
+  }
+  
+  environment {
+    CCACHE_DIR = "/tmp/ccache"
   }
 
   stages {
@@ -17,6 +21,7 @@ pipeline {
         }
       }
     }
+    
     stage('Clone') {
       steps {
         dir('ci') {
@@ -26,22 +31,20 @@ pipeline {
         dir('src') {
           git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
         }
-        echo 'Finished Cloning'
       }
     }
+    
     stage('Build') {
       steps {
-        echo 'Starting build'
         dir('src') {
-          //sh 'source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/rat.sh'
-          echo "Skipping Build"
+          echo "Building"
+          //sh 'source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/snapshot.sh'
         }
       }
     }
   }
-  
   post {
-    cleanup {
+    always {
       cleanWs()
     }
   }

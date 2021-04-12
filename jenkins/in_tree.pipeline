@@ -1,53 +1,50 @@
 pipeline {
-	agent {
-		docker {
-			//image 'fedora:30'
-			image 'ats/fedora:32'
-			registryUrl 'https://controller.trafficserver.org/'
-			args '-v /home/rooter/ccache:/tmp/ccache:rw'
-		}
-	}
-	
-	environment {
-		CCACHE_DIR = "/tmp/ccache"
-	}
+  agent {
+    docker {
+      //image 'fedora:30'
+      image 'ats/fedora:32'
+      registryUrl 'https://controller.trafficserver.org/'
+      args '-v /home/rooter/ccache:/tmp/ccache:rw'
+    }
+  }
+  
+  environment {
+    CCACHE_DIR = "/tmp/ccache"
+  }
 
-	stages {
-		stage('Initialization') {
-			steps {
-				script {
-					currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
-					//currentBuild.description = "The best description."
-				}
-			}
-		}
-		
-		stage('Clone') {
-			steps {
-				dir('ci') {
-					git url: 'https://github.com/traeak/trafficserver-ci',
-						branch: 'full_pipeline'
-				}
-				dir('src') {
-					git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
-				}
-			}
-		}
-		
-		stage('Build') {
-			steps {
-				dir('src') {
-					echo "Building"
-					//sh 'source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/in_tree.sh'
-					echo "Skipping build"
-					sleep 5
-				}
-			}
-		}
-	}
-	post {
-		always {
-			cleanWs()
-		}
-	}
+  stages {
+    stage('Initialization') {
+      steps {
+        script {
+          currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
+        }
+      }
+    }
+    
+    stage('Clone') {
+      steps {
+        dir('ci') {
+          git url: 'https://github.com/traeak/trafficserver-ci',
+            branch: 'full_pipeline'
+        }
+        dir('src') {
+          git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
+        }
+      }
+    }
+    
+    stage('Build') {
+      steps {
+        dir('src') {
+          echo "Building"
+          //sh 'source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/in_tree.sh'
+        }
+      }
+    }
+  }
+  post {
+    always {
+      cleanWs()
+    }
+  }
 }
