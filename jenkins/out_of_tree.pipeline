@@ -1,49 +1,60 @@
 pipeline {
-  agent {
-    docker {
-      //image 'fedora:30'
-      image 'ats/fedora:32'
-      registryUrl 'https://controller.trafficserver.org/'
-      args '-v /home/rooter/ccache:/tmp/ccache:rw'
-    }
-  }
-  
-  environment {
-    CCACHE_DIR = "/tmp/ccache"
-  }
+	agent {
+		docker {
+			//image 'fedora:30'
+			image 'ats/fedora:32'
+			registryUrl 'https://controller.trafficserver.org/'
+			args '-v /home/rooter/ccache:/tmp/ccache:rw'
+		}
+	}
+	
+	environment {
+		CCACHE_DIR = "/tmp/ccache"
+	}
 
-  stages {
-    stage('Initialization') {
-      steps {
-        script {
-          currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
-        }
-      }
-    }
+	stages {
+		stage('Initialization') {
+			steps {
+				script {
+					currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
+					if (env.SHA1) {
+						currentBuild.description = env.SHA1
+					}
+				}
+			}
+		}
 
-    stage('Clone') {
-      steps {
-        dir('ci') {
-          git url: 'https://github.com/traeak/trafficserver-ci',
-            branch: 'full_pipeline'
-        }
-        dir('src') {
-          git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
-        }
-      }
-    }
-    stage('Build') {
-      steps {
-        dir('src') {
-          //sh 'source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/out_of_tree.sh'
-          echo "Building"
-        }
-      }
-    }
-  }
-  post {
-    always {
-      cleanWs()
-    }
-  }
+		stage('Clone') {
+			steps {
+				dir('ci') {
+					git url: 'https://github.com/traeak/trafficserver-ci',
+						branch: 'full_pipeline'
+				}
+				dir('src') {
+					script {
+						if (env.SHA1) {
+							checkout([$class: 'GitSCM',
+								branches: [[name: env.SHA1]],
+								userRemoteConfigs: [[url: env.GITHUB_URL]]])
+						} else {
+							git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
+						}
+					}
+				}
+			}
+		}
+		stage('Build') {
+			steps {
+				dir('src') {
+					//sh 'source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/out_of_tree.sh'
+					echo "Building"
+				}
+			}
+		}
+	}
+	post {
+		always {
+			cleanWs()
+		}
+	}
 }
