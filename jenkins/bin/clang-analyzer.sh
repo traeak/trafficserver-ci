@@ -17,7 +17,7 @@
 #  limitations under the License.
 
 # Where are our LLVM tools?
-LLVM_BASE=${LLVM:-/opt/llvm}
+LLVM_BASE=/usr/bin
 NPROCS=${NPROCS:-$(getconf _NPROCESSORS_ONLN)}
 NOCLEAN=${NOCLEAN:-}
 OUTPUT_BASE=${OUTPUT_BASE:-/home/jenkins/clang-analyzer}
