@@ -73,7 +73,7 @@ grep -q 80010 configure.ac && echo "8.1.x branch detected, stop here!" && exit 0
 # Start the build / scan
 [ "$output" != "/tmp" ] && echo "Results (if any) can be found at ${results_url}"
 autoreconf -fi
-${LLVM_BASE}/bin/scan-build --keep-cc ./configure ${configure} \
+${LLVM_BASE}/bin/scan-build-10 --keep-cc ./configure ${configure} \
     CXXFLAGS="-stdlib=libc++ -I${LLVM_BASE}/include/c++/v1" \
     LDFLAGS="-L${LLVM_BASE}/lib64 -Wl,-rpath=${LLVM_BASE}/lib64" \
     || exit 1
