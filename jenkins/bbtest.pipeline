@@ -1,0 +1,217 @@
+def DUMMY = true
+
+def doParallelBuilds() {
+  def images = [
+    'centos:7', 'centos:8',
+    'fedora:32', 'fedora:33',
+    'ubuntu:18.04', 'ubuntu:20.04',
+    'debian:9', 'debian:10',
+  ]
+  def compilers = [ 'gcc', 'clang' ]
+  def types = [ 'release', 'debug' ]
+
+  def buildjobs = []
+
+  // create list of build jobs
+  for (image in images) {
+    for (compiler in compilers) {
+      for (type in types) {
+        buildjobs.add(image + ',' + compiler + ',' + type)
+      }
+    }
+  }
+  
+  buildjobs = buildjobs.minus('centos:7,clang,debug')
+  buildjobs = buildjobs.minus('centos:7,clang,release')
+
+  def builders = [:]
+
+  for (buildjob in buildjobs) {
+    def params = buildjob.split(',')
+    def distro = params[0]
+    def compiler = params[1]
+    def type = params[2]
+    String jobName = distro + ' ' + compiler + ' ' + type
+    builders[jobName] = {
+      stage(jobName) {
+        script {
+          String job = 'Branch_Builds/OS_Build'
+          if (DUMMY) {
+            job = 'Branch_Builds/dummy'
+          }
+          result = buildJob(jobName, job, distro, compiler, type)
+
+          if (result == 'FAILURE') {
+            error("${jobName} build failed")
+          }
+        }
+      }
+    }
+  }
+
+  parallel builders
+}
+
+String validateJob(String ghcontext, String jobName) {
+    echo "Build of '${jobName}-${GITHUB_BRANCH}'"
+    def jobBuild = build job: jobName, propagate: false,
+        parameters: [
+            string(name: 'GITHUB_URL', value: env.GITHUB_URL),
+            string(name: 'GITHUB_BRANCH', value: env.GITHUB_BRANCH)
+        ]
+    def jobResult = jobBuild.getResult()
+    echo "Build of '${jobName}-${GITHUB_BRANCH}' returned result: ${jobResult}"
+    return jobResult
+}
+
+String buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
+    echo "Build of '${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}'"
+    def jobBuild = build job: jobName, propagate: false,
+        parameters: [
+            string(name: 'GITHUB_URL', value: GITHUB_URL),
+            string(name: 'GITHUB_BRANCH', value: GITHUB_BRANCH),
+            string(name: 'DISTRO', value: distro),
+            string(name: 'COMPILER', value: compiler),
+            string(name: 'TYPE', value: type)
+        ]
+    def jobResult = jobBuild.getResult()
+    echo "Build of '${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}' returned result: ${jobResult}"
+    return jobResult
+}
+
+def shaForBranch(url, branch) {
+    sha1 = sh (
+        script: "set -- `git ls-remote -h $url refs/heads/$branch`; echo \${1}",
+        returnStdout: true
+    ).trim()
+    return sha1
+}
+
+
+pipeline {
+  agent none
+
+/*
+  options {
+    parallelsAlwaysFailFast()
+  }
+*/
+
+  stages {
+    stage('Initialization') {
+      agent { label 'master' }
+      steps {
+        script {
+          currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
+          if (! env.SHA1) {
+            env.SHA1 = shaForBranch(env.GITHUB_URL, env.GITHUB_BRANCH)
+            echo "Building hash ${SHA1}"
+          }
+        }
+      }
+    }
+
+    stage('Validation') {
+      parallel {
+        stage('In Tree') {
+          steps {
+            script {
+              String job = 'Branch_builds/in_tree'
+              if (DUMMY) { job = 'Branch_builds/dummy' }
+              result = validateJob('in_tree', job)
+              if ('FAILURE' == result) { error("in tree build failed") }
+            }
+          }
+        }
+        stage('Out Of Tree') {
+          steps {
+            script {
+              String job = 'Branch_builds/out_of_tree'
+              if (DUMMY) { job = 'Branch_builds/dummy' }
+              result = validateJob('out_of_tree', job)
+              if ('FAILURE' == result) { error("out of tree build failed") }
+            }
+          }
+        }
+        stage('RAT') {
+          steps {
+            script {
+              String job = 'Branch_Builds/rat'
+              if (DUMMY) { job = 'Branch_builds/dummy' }
+              result = validateJob('rat', job)
+              if ('FAILURE' == result) { error("rat build failed") }
+            }
+          }
+        }
+        stage('clang-format') {
+          steps {
+            script {
+              String job = 'Branch_Builds/clang-format'
+              if (DUMMY) { job = 'Branch_Builds/dummy' }
+              result = validateJob('clang-format', job)
+              if ('FAILURE' == result) { error("clang-format build failed") }
+            }
+          }
+        }
+      }
+    }
+    
+    stage('Snapshot') {
+      steps {
+        script {
+          String job = 'Branch_Builds/snapshot'
+          if (DUMMY) { job = 'Branch_Builds/dummy' }
+          result = validateJob('snapshot', job)
+          if ('FAILURE' == result) { error("snapshot failed") }
+        }
+      }
+    }
+    
+    stage('OS Builds') {
+      steps {
+        script {
+          doParallelBuilds()
+        }
+      }
+    }
+    
+    stage('Verification') {
+      parallel {
+        stage('clang-analyzer') {
+          steps {
+            script {
+                /*
+              result = validateJob('clang-analyzer', 'Branch_Builds/clang-analyzer')
+              if ('FAILURE' == result) { error("clang-analyzer failed") }
+                */
+              echo "skipping clang-analyzer"
+            }
+          }
+        }
+        stage('autests') {
+          steps {
+            script {
+                /*
+              result = validateJob('autest', 'Branch_Builds/autest')
+              if ('FAILURE' == result) { error("clang-analyzer failed") }
+                */
+              echo "skipping autest"
+            }
+          }
+        }
+        stage('cache-tests') {
+          steps {
+            script {
+                /*
+              result = validateJob('autest', 'Branch_Builds/cache-tests')
+              if ('FAILURE' == result) { error("cache-tests failed") }
+                */
+              echo "skipping cache-tests"
+            }
+          }
+        }
+
+      }
+    }
+  }
+}
