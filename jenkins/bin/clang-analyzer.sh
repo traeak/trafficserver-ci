@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
@@ -17,7 +17,7 @@
 #  limitations under the License.
 
 # Where are our LLVM tools?
-LLVM_BASE=/usr/bin
+LLVM_BASE=/usr
 NPROCS=${NPROCS:-$(getconf _NPROCESSORS_ONLN)}
 NOCLEAN=${NOCLEAN:-}
 OUTPUT_BASE=${OUTPUT_BASE:-/home/jenkins/clang-analyzer}
