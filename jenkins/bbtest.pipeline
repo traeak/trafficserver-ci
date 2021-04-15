@@ -1,4 +1,4 @@
-def DUMMY = true
+DUMMY = true
 
 def doParallelBuilds() {
   def images = [
@@ -20,7 +20,7 @@ def doParallelBuilds() {
       }
     }
   }
-  
+
   buildjobs = buildjobs.minus('centos:7,clang,debug')
   buildjobs = buildjobs.minus('centos:7,clang,release')
 
@@ -35,12 +35,7 @@ def doParallelBuilds() {
     builders[jobName] = {
       stage(jobName) {
         script {
-          String job = 'Branch_Builds/OS_Build'
-          if (DUMMY) {
-            job = 'Branch_Builds/dummy'
-          }
-          result = buildJob(jobName, job, distro, compiler, type)
-
+          result = buildJob(jobName, 'Branch_Builds/OS_Build', distro, compiler, type)
           if (result == 'FAILURE') {
             error("${jobName} build failed")
           }
@@ -54,6 +49,7 @@ def doParallelBuilds() {
 
 String validateJob(String ghcontext, String jobName) {
     echo "Build of '${jobName}-${GITHUB_BRANCH}'"
+    if (DUMMY) { jobName = "Branch_Builds/dummy" }
     def jobBuild = build job: jobName, propagate: false,
         parameters: [
             string(name: 'GITHUB_URL', value: env.GITHUB_URL),
@@ -66,6 +62,7 @@ String validateJob(String ghcontext, String jobName) {
 
 String buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
     echo "Build of '${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}'"
+    if (DUMMY) { jobName = "Branch_Builds/dummy" }
     def jobBuild = build job: jobName, propagate: false,
         parameters: [
             string(name: 'GITHUB_URL', value: GITHUB_URL),
@@ -116,9 +113,7 @@ pipeline {
         stage('In Tree') {
           steps {
             script {
-              String job = 'Branch_builds/in_tree'
-              if (DUMMY) { job = 'Branch_builds/dummy' }
-              result = validateJob('in_tree', job)
+              result = validateJob('in_tree', 'Branch_Builds/in_tree')
               if ('FAILURE' == result) { error("in tree build failed") }
             }
           }
@@ -126,9 +121,7 @@ pipeline {
         stage('Out Of Tree') {
           steps {
             script {
-              String job = 'Branch_builds/out_of_tree'
-              if (DUMMY) { job = 'Branch_builds/dummy' }
-              result = validateJob('out_of_tree', job)
+              result = validateJob('out_of_tree', 'Branch_Builds/out_of_tree')
               if ('FAILURE' == result) { error("out of tree build failed") }
             }
           }
@@ -136,9 +129,7 @@ pipeline {
         stage('RAT') {
           steps {
             script {
-              String job = 'Branch_Builds/rat'
-              if (DUMMY) { job = 'Branch_builds/dummy' }
-              result = validateJob('rat', job)
+              result = validateJob('rat', 'Branch_Builds/rat')
               if ('FAILURE' == result) { error("rat build failed") }
             }
           }
@@ -146,27 +137,23 @@ pipeline {
         stage('clang-format') {
           steps {
             script {
-              String job = 'Branch_Builds/clang-format'
-              if (DUMMY) { job = 'Branch_Builds/dummy' }
-              result = validateJob('clang-format', job)
+              result = validateJob('clang-format', 'Branch_Builds/clang-format')
               if ('FAILURE' == result) { error("clang-format build failed") }
             }
           }
         }
       }
     }
-    
+
     stage('Snapshot') {
       steps {
         script {
-          String job = 'Branch_Builds/snapshot'
-          if (DUMMY) { job = 'Branch_Builds/dummy' }
-          result = validateJob('snapshot', job)
+          result = validateJob('snapshot', 'Branch_Builds/snapshot')
           if ('FAILURE' == result) { error("snapshot failed") }
         }
       }
     }
-    
+
     stage('OS Builds') {
       steps {
         script {
@@ -174,7 +161,7 @@ pipeline {
         }
       }
     }
-    
+
     stage('Verification') {
       parallel {
         stage('clang-analyzer') {
