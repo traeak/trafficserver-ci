@@ -84,7 +84,7 @@ ${LLVM_BASE}/bin/scan-build-10 --keep-cc ./configure ${configure} \
 # by making yaml cpp a SUBDIRS in lib/Makefile.am.
 ${ATS_MAKE} -j $NPROCS -C lib all-local V=1 Q= || exit 1
 
-${LLVM_BASE}/bin/scan-build --keep-cc ${checkers} ${options} -o ${output} \
+${LLVM_BASE}/bin/scan-build-10 --keep-cc ${checkers} ${options} -o ${output} \
     --html-title="clang-analyzer: ${ATS_BRANCH}${github_pr}" \
     ${ATS_MAKE} -j $NPROCS V=1 Q=
 status=$?
