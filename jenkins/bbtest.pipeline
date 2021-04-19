@@ -1,24 +1,24 @@
-DUMMY = true
+DRY_RUN = true
 
 def doParallelBuilds() {
   def images = [
-    'centos:7', 'centos:8',
-    'fedora:32', 'fedora:33',
-    'ubuntu:18.04', 'ubuntu:20.04',
-    'debian:9', 'debian:10',
+	'centos:7', 'centos:8',
+	'fedora:32', 'fedora:33',
+	'ubuntu:18.04', 'ubuntu:20.04',
+	'debian:9', 'debian:10',
   ]
   def compilers = [ 'gcc', 'clang' ]
   def types = [ 'release', 'debug' ]
 
   def buildjobs = []
 
-  // create list of build jobs
+  // create an encoded list of build jobs
   for (image in images) {
-    for (compiler in compilers) {
-      for (type in types) {
-        buildjobs.add(image + ',' + compiler + ',' + type)
-      }
-    }
+		for (compiler in compilers) {
+			for (type in types) {
+				buildjobs.add([image, compiler, type].join(','))
+			}
+		}
   }
 
   buildjobs = buildjobs.minus('centos:7,clang,debug')
@@ -27,178 +27,166 @@ def doParallelBuilds() {
   def builders = [:]
 
   for (buildjob in buildjobs) {
-    def params = buildjob.split(',')
-    def distro = params[0]
-    def compiler = params[1]
-    def type = params[2]
-    String jobName = distro + ' ' + compiler + ' ' + type
-    builders[jobName] = {
-      stage(jobName) {
-        script {
-          result = buildJob(jobName, 'Branch_Builds/OS_Build', distro, compiler, type)
-          if (result == 'FAILURE') {
-            error("${jobName} build failed")
-          }
-        }
-      }
-    }
+		def params = buildjob.split(',')
+		def distro = params[0]
+		def compiler = params[1]
+		def type = params[2]
+		String jobName = distro + ' ' + compiler + ' ' + type
+		builders[jobName] = {
+			stage(jobName) {
+				script {
+					result = buildJob(jobName, 'Branch_Builds/OS_Build', distro, compiler, type)
+					if (result == 'FAILURE') {
+						error("${jobName} build failed")
+					}
+				}
+			}
+		}
   }
 
   parallel builders
 }
 
-String validateJob(String ghcontext, String jobName) {
-    echo "Build of '${jobName}-${GITHUB_BRANCH}'"
-    if (DUMMY) { jobName = "Branch_Builds/dummy" }
-    def jobBuild = build job: jobName, propagate: false,
-        parameters: [
-            string(name: 'GITHUB_URL', value: env.GITHUB_URL),
-            string(name: 'GITHUB_BRANCH', value: env.GITHUB_BRANCH)
-        ]
-    def jobResult = jobBuild.getResult()
-    echo "Build of '${jobName}-${GITHUB_BRANCH}' returned result: ${jobResult}"
-    return jobResult
+def validateJob(String ghcontext, String jobName) {
+	echo "Build of '${jobName}-${GITHUB_BRANCH}'"
+	if (DRY_RUN) { jobName = "Branch_Builds/dummy" }
+	def jobBuild = build job: jobName, propagate: false,
+		parameters: [
+			string(name: 'GITHUB_URL', value: env.GITHUB_URL),
+			string(name: 'GITHUB_BRANCH', value: env.GITHUB_BRANCH)
+		]
+	def result = jobBuild.getResult()
+	echo "Build of '${jobName}-${GITHUB_BRANCH}' returned result: ${result}"
+	if ('FAILURE' == result) { error("${jobName} failed") }
 }
 
-String buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
-    echo "Build of '${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}'"
-    if (DUMMY) { jobName = "Branch_Builds/dummy" }
-    def jobBuild = build job: jobName, propagate: false,
-        parameters: [
-            string(name: 'GITHUB_URL', value: GITHUB_URL),
-            string(name: 'GITHUB_BRANCH', value: GITHUB_BRANCH),
-            string(name: 'DISTRO', value: distro),
-            string(name: 'COMPILER', value: compiler),
-            string(name: 'TYPE', value: type)
-        ]
-    def jobResult = jobBuild.getResult()
-    echo "Build of '${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}' returned result: ${jobResult}"
-    return jobResult
+def buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
+	String name = '${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}'
+	echo "Build of '${name}'"
+	if (DRY_RUN) { jobName = "Branch_Builds/dummy" }
+	def jobBuild = build job: jobName, propagate: false,
+		parameters: [
+			string(name: 'GITHUB_URL', value: GITHUB_URL),
+			string(name: 'GITHUB_BRANCH', value: GITHUB_BRANCH),
+			string(name: 'DISTRO', value: distro),
+			string(name: 'COMPILER', value: compiler),
+			string(name: 'TYPE', value: type)
+		]
+	def result = jobBuild.getResult()
+	echo "Build of '${name}' returned result: ${result}"
+	if ('FAILURE' == result) { error("${jobName} failed") }
 }
 
 def shaForBranch(url, branch) {
-    sha1 = sh (
-        script: "set -- `git ls-remote -h $url refs/heads/$branch`; echo \${1}",
-        returnStdout: true
-    ).trim()
-    return sha1
+	sha1 = sh (
+		script: "set -- `git ls-remote -h $url refs/heads/$branch`; echo \${1}",
+		returnStdout: true
+	).trim()
+	return sha1
 }
 
-
 pipeline {
-  agent none
+	agent none
 
-/*
-  options {
-    parallelsAlwaysFailFast()
-  }
-*/
+	/*
+	options {
+	parallelsAlwaysFailFast()
+	}
+	*/
 
-  stages {
-    stage('Initialization') {
-      agent { label 'master' }
-      steps {
-        script {
-          currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
-          if (! env.SHA1) {
-            env.SHA1 = shaForBranch(env.GITHUB_URL, env.GITHUB_BRANCH)
-            echo "Building hash ${SHA1}"
-          }
-        }
-      }
-    }
+	stages {
+		stage('Initialization') {
+			agent { label 'master' }
+			steps {
+				script {
+					currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
+					if (! env.SHA1) {
+						env.SHA1 = shaForBranch(env.GITHUB_URL, env.GITHUB_BRANCH)
+					}
+					echo "Building hash ${SHA1}"
+				}
+			}
+		}
 
-    stage('Validation') {
-      parallel {
-        stage('In Tree') {
-          steps {
-            script {
-              result = validateJob('in_tree', 'Branch_Builds/in_tree')
-              if ('FAILURE' == result) { error("in tree build failed") }
-            }
-          }
-        }
-        stage('Out Of Tree') {
-          steps {
-            script {
-              result = validateJob('out_of_tree', 'Branch_Builds/out_of_tree')
-              if ('FAILURE' == result) { error("out of tree build failed") }
-            }
-          }
-        }
-        stage('RAT') {
-          steps {
-            script {
-              result = validateJob('rat', 'Branch_Builds/rat')
-              if ('FAILURE' == result) { error("rat build failed") }
-            }
-          }
-        }
-        stage('clang-format') {
-          steps {
-            script {
-              result = validateJob('clang-format', 'Branch_Builds/clang-format')
-              if ('FAILURE' == result) { error("clang-format build failed") }
-            }
-          }
-        }
-      }
-    }
+		stage('Validation') {
+			parallel {
+				stage('In Tree') {
+					steps {
+						script {
+							validateJob('in_tree', 'Branch_Builds/in_tree')
+						}
+					}
+				}
+				stage('Out Of Tree') {
+					steps {
+						script {
+							validateJob('out_of_tree', 'Branch_Builds/out_of_tree')
+						}
+					}
+				}
+				stage('RAT') {
+					steps {
+						script {
+							validateJob('rat', 'Branch_Builds/rat')
+						}
+					}
+				}
+				stage('clang-format') {
+					steps {
+						script {
+							validateJob('clang-format', 'Branch_Builds/clang-format')
+						}
+					}
+				}
+			}
+		}
 
-    stage('Snapshot') {
-      steps {
-        script {
-          result = validateJob('snapshot', 'Branch_Builds/snapshot')
-          if ('FAILURE' == result) { error("snapshot failed") }
-        }
-      }
-    }
+		stage('Snapshot') {
+			steps {
+				script {
+					validateJob('snapshot', 'Branch_Builds/snapshot')
+				}
+			}
+		}
 
-    stage('OS Builds') {
-      steps {
-        script {
-          doParallelBuilds()
-        }
-      }
-    }
+		stage('OS Builds') {
+			steps {
+				script {
+					doParallelBuilds()
+				}
+			}
+		}
 
-    stage('Verification') {
-      parallel {
-        stage('clang-analyzer') {
-          steps {
-            script {
-                /*
-              result = validateJob('clang-analyzer', 'Branch_Builds/clang-analyzer')
-              if ('FAILURE' == result) { error("clang-analyzer failed") }
-                */
-              echo "skipping clang-analyzer"
-            }
-          }
-        }
-        stage('autests') {
-          steps {
-            script {
-                /*
-              result = validateJob('autest', 'Branch_Builds/autest')
-              if ('FAILURE' == result) { error("clang-analyzer failed") }
-                */
-              echo "skipping autest"
-            }
-          }
-        }
-        stage('cache-tests') {
-          steps {
-            script {
-                /*
-              result = validateJob('autest', 'Branch_Builds/cache-tests')
-              if ('FAILURE' == result) { error("cache-tests failed") }
-                */
-              echo "skipping cache-tests"
-            }
-          }
-        }
-
-      }
-    }
-  }
+		stage('Verification') {
+			parallel {
+				stage('clang-analyzer') {
+					steps {
+						script {
+							validateJob('clang-analyzer', 'Branch_Builds/clang-analyzer')
+						}
+					}
+				}
+				stage('autests') {
+					steps {
+						script {
+							/*
+							validateJob('autest', 'Branch_Builds/autest')
+							*/
+							echo "skipping autest"
+						}
+					}
+				}
+				stage('cache-tests') {
+					steps {
+						script {
+							/*
+							validateJob('autest', 'Branch_Builds/cache-tests')
+							*/
+							echo "skipping cache-tests"
+						}
+					}
+				}
+			}
+		}
+	}
 }

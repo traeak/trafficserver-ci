@@ -43,6 +43,8 @@ FROM ${OS_TYPE}:${OS_VERSION}
 # This runs all the DEB installations, starting with a system level update. tzdata
 # needs to be installed, because TCL needs it, and we need this non-interactive.
 # ToDo: Remove tzdata when TCL is fully gone
+RUN echo "deb http://ftp.us.debian.org/debian testing main contrib non-free" > etc/apt/sources.list.d/testing.list
+
 RUN apt-get update; apt-get -y dist-upgrade; \
     DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata apt-utils; \
     # Compilers

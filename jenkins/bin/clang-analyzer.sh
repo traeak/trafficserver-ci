@@ -100,3 +100,5 @@ fi
 if [ -x "/admin/bin/clean-clang.sh" ]; then
     /admin/bin/clean-clang.sh
 fi
+
+exit $status

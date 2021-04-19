@@ -54,7 +54,8 @@ export ATS_MAKE
 export TODAY=$(/bin/date +'%m%d%Y')
 
 # Extract the current branch (default to master). ToDo: Can we do this better ?
-ATS_BRANCH=master
+#ATS_BRANCH=master
+ATS_BRANCH=${GITHUB_BRANCH:=master}
 
 # Make sure to leave these, for the HTTP cache tests
 #test "${JOB_NAME#*-5.3.x}" != "${JOB_NAME}" && ATS_BRANCH=5.3.x

@@ -1,19 +1,28 @@
 def doParallelBuilds() {
 	def images = [
-		'centos:7, 'centos:8',
+		'centos:7', 'centos:8',
 		'fedora:32', 'fedora:33',
 		'ubuntu:18.04', 'ubuntu:20.04',
-		'debian:9' 'debian:10',
+		'debian:9', 'debian:10',
 	]
 	def compilers = [ 'gcc', 'clang' ]
 	def types = [ 'release', 'debug' ]
 
-	def buildjobs = [:]
+	def buildjobs = []
 
 	// create list of build jobs
+	for (image in images) {
+		for (compiler in compilers) {
+			for (type in types) {
+				buildjobs.add([image, compiler, type])
+			}
+		}
+	}
+
+	// custom build
+	buildjobs.add(['debian:9', 'gcc', 'hardening'])
 
 	def builders = [:]
-	String repo = 'controller.trafficserver.org'
 
 	for (params in buildjobs) {
 		def distro = params[0]

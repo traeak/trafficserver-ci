@@ -60,3 +60,11 @@ ubuntu18.04:
 
 ubuntu20.04:
 	docker build -t ats_$@ --build-arg OS_VERSION=20.04 --build-arg OS_TYPE=ubuntu --network=host deb/
+
+debian: debian9 debian10
+
+debian9:
+	docker build -t ats_$@ --build-arg OS_VERSION=9 --build-arg OS_TYPE=debian --network=host deb/
+
+debian10:
+	docker build -t ats_$@ --build-arg OS_VERSION=10 --build-arg OS_TYPE=debian --network=host deb/
