@@ -45,12 +45,13 @@ echo "ASAN: $ASAN"
 # Change to the build area (this is previously setup in extract.sh)
 #cd "${ATS_BUILD_BASEDIR}/build"
 mkdir -p install
-mkdir -p BUILDS && cd BUILDS
+#mkdir -p BUILDS && cd BUILDS
 
 # Restore verbose shell output
 set -x
 
-../configure \
+#../configure \
+./configure \
     --prefix="${ATS_BUILD_BASEDIR}/install" \
     --enable-experimental-plugins \
     --enable-example-plugins \
