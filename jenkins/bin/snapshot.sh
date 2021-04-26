@@ -32,7 +32,7 @@ ${ATS_MAKE} asf-dist
 
 # Make an "atomic" copy of the artifact (and leave it here for the archive)
 cp trafficserver-*.tar.bz2 ${ATS_SRC_HOME}/trafficserver-${ATS_BRANCH}.tar.bz2.new
-mv ${ATS_SRC_HOME}/trafficserver-${ATS_BRANCH}.tar.bz2.new ${ATS_SRC_HOME}/trafficserver-${ATS_BRANCH}.tar.bz2
+mv ${ATS_SRC_HOME}/trafficserver-${ATS_BRANCH}.tar.bz2.new ${WORKSPACE}/trafficserver-${ATS_BRANCH}.tar.bz2
 
 # Make sure we get a chance to synchronize the /CA/src directory to remote sites.
-sleep 5
+#sleep 5

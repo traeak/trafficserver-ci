@@ -22,7 +22,7 @@ printenv
 
 # Check if it's a debug or release build
 DEBUG=""
-#test "${JOB_NAME#*type=debug}" != "${JOB_NAME}" && DEBUG="--enable-debug"
+test "${JOB_NAME#*type=debug}" != "${JOB_NAME}" && DEBUG="--enable-debug"
 [ "${TYPE}" == "debug" ] && DEBUG="--enable-debug"
 HARDENING=""
 [ "${TYPE}" == "hardening" ] && HARDENING="--enable-hardening"

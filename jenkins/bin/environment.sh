@@ -42,7 +42,7 @@ CCACHE_DIR="${CCACHE_DIR:=/tmp/ccache}"
 
 # Check if we're doing Debian style hardening
 [ "hardening" == "${TYPE}" ] && export DEB_BUILD_HARDENING=1
-#test "${JOB_NAME#*type=hardening}" != "${JOB_NAME}" && export DEB_BUILD_HARDENING=1
+test "${JOB_NAME#*type=hardening}" != "${JOB_NAME}" && export DEB_BUILD_HARDENING=1
 
 # Check if we need to use a different "make"
 ATS_MAKE=make
@@ -62,17 +62,16 @@ ATS_BRANCH=${GITHUB_BRANCH:=master}
 #test "${JOB_NAME#*-6.2.x}" != "${JOB_NAME}" && ATS_BRANCH=6.2.x
 
 # These should be maintained and cleaned up as needed.
-#test "${JOB_NAME#*-7.1.x}" != "${JOB_NAME}" && ATS_BRANCH=7.1.x
-#test "${JOB_NAME#*-8.0.x}" != "${JOB_NAME}" && ATS_BRANCH=8.0.x
-#test "${JOB_NAME#*-8.1.x}" != "${JOB_NAME}" && ATS_BRANCH=8.1.x
-#test "${JOB_NAME#*-9.0.x}" != "${JOB_NAME}" && ATS_BRANCH=9.0.x
-#test "${JOB_NAME#*-9.1.x}" != "${JOB_NAME}" && ATS_BRANCH=9.1.x
-#test "${JOB_NAME#*-9.2.x}" != "${JOB_NAME}" && ATS_BRANCH=9.2.x
-#test "${JOB_NAME#*-9.3.x}" != "${JOB_NAME}" && ATS_BRANCH=9.3.x
-#test "${JOB_NAME#*-10.0.x}" != "${JOB_NAME}" && ATS_BRANCH=10.0.x
-#test "${JOB_NAME#*-10.1.x}" != "${JOB_NAME}" && ATS_BRANCH=10.1.x
-#test "${JOB_NAME#*-10.2.x}" != "${JOB_NAME}" && ATS_BRANCH=10.2.x
-#test "${JOB_NAME#*-10.3.x}" != "${JOB_NAME}" && ATS_BRANCH=10.3.x
+test "${JOB_NAME#*-8.0.x}" != "${JOB_NAME}" && ATS_BRANCH=8.0.x
+test "${JOB_NAME#*-8.1.x}" != "${JOB_NAME}" && ATS_BRANCH=8.1.x
+test "${JOB_NAME#*-9.0.x}" != "${JOB_NAME}" && ATS_BRANCH=9.0.x
+test "${JOB_NAME#*-9.1.x}" != "${JOB_NAME}" && ATS_BRANCH=9.1.x
+test "${JOB_NAME#*-9.2.x}" != "${JOB_NAME}" && ATS_BRANCH=9.2.x
+test "${JOB_NAME#*-9.3.x}" != "${JOB_NAME}" && ATS_BRANCH=9.3.x
+test "${JOB_NAME#*-10.0.x}" != "${JOB_NAME}" && ATS_BRANCH=10.0.x
+test "${JOB_NAME#*-10.1.x}" != "${JOB_NAME}" && ATS_BRANCH=10.1.x
+test "${JOB_NAME#*-10.2.x}" != "${JOB_NAME}" && ATS_BRANCH=10.2.x
+test "${JOB_NAME#*-10.3.x}" != "${JOB_NAME}" && ATS_BRANCH=10.3.x
 
 # Special case for the full build of clang analyzer
 #test "${JOB_NAME}" == "clang-analyzer-full" && ATS_BRANCH=FULL
@@ -82,7 +81,7 @@ echo "Branch is $ATS_BRANCH"
 
 # If the job name includes the string "clang", force clang. This can also be set
 # explicitly for specific jobs.
-#test "${JOB_NAME#*compiler=clang}" != "${JOB_NAME}" && enable_clang=1
+test "${JOB_NAME#*compiler=clang}" != "${JOB_NAME}" && enable_clang=1
 
 COMPILER=${COMPILER:=gcc}
 [ "${COMPILER}" == "clang" ] && enable_clang=1
