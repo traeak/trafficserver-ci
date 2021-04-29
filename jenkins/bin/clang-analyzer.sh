@@ -16,6 +16,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+test -z "${WORKSPACE}" && WORKSPACE=".."
+
 mkdir -p ${WORKSPACE}/output/
 head -1 README
 autoreconf -fiv
@@ -36,7 +38,7 @@ scan-build-10 --keep-cc \
 make -j4 V=1 Q=
 
 make -j4
-[ ! -f ${WORKSPACE}/output/index.html ] && touch ${WORKSPACE}/output/No\\ Errors\\ Reported; exit 0 || exit 1
+[ ! -f ${WORKSPACE}/output/index.html ] && touch "${WORKSPACE}/output/No Errors Reported"; exit 0 || exit 1
 
 # Where are our LLVM tools?
 NPROCS=${NPROCS:-$(getconf _NPROCESSORS_ONLN)}
