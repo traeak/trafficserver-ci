@@ -91,14 +91,14 @@ status=$?
 
 # Clean the work area unless NOCLEAN is set. This is just for debugging when you
 # need to see what the generated build did.
-if [ -z "$NOCLEAN" ]; then
-    ${ATS_MAKE} distclean
-fi
+#if [ -z "$NOCLEAN" ]; then
+#    ${ATS_MAKE} distclean
+#fi
 [ "$output" != "/tmp" ] && echo "Results (if any) can be found at ${results_url}"
 
 # Cleanup old reports, for main clang and github as well (if the local helper script is available)
-if [ -x "/admin/bin/clean-clang.sh" ]; then
-    /admin/bin/clean-clang.sh
-fi
+#if [ -x "/admin/bin/clean-clang.sh" ]; then
+#    /admin/bin/clean-clang.sh
+#fi
 
 exit $status
