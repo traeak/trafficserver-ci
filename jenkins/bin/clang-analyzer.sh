@@ -16,14 +16,33 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+mkdir -p ${WORKSPACE}/output/
+head -1 README
+autoreconf -fiv
+
+scan-build-10 --keep-cc \
+	./configure --enable-experimental-plugins --with-luajit
+
+make -j4 -C lib all-local V=1 Q=
+
+scan-build-10 --keep-cc \
+	-enable-checker alpha.unix.cstring.BufferOverlap \
+	-enable-checker alpha.core.BoolAssignment \
+	-enable-checker alpha.core.CastSize \
+	-enable-checker alpha.core.SizeofPtr \
+	--status-bugs --keep-empty \
+	-o ${WORKSPACE}/output/ \
+	--html-title="clang-analyzer: ${GITHUB_BRANCH}" \
+make -j4 V=1 Q=
+
+make -j4
+[ ! -f ${WORKSPACE}/output/index.html ] && touch ${WORKSPACE}/output/No\\ Errors\\ Reported; exit 0 || exit 1
+
 # Where are our LLVM tools?
-LLVM_BASE=/usr
 NPROCS=${NPROCS:-$(getconf _NPROCESSORS_ONLN)}
-NOCLEAN=${NOCLEAN:-}
-OUTPUT_BASE=${OUTPUT_BASE:-/home/jenkins/clang-analyzer}
 
 # Options
-options="--status-bugs --keep-empty"
+options="--status-bugs --keep-cc"
 configure="--enable-experimental-plugins --with-luajit"
 
 # Additional checkers
@@ -40,22 +59,25 @@ test ! -z "${WORKSPACE}" && cd "${WORKSPACE}/src"
 
 # Where to store the results, special case for the CI
 output="/tmp"
+test ! -z "${WORKSPACE}" && output="${WORKSPACE}/output"
 
 # Find a Jenkins output tree if possible
-if [ "${JOB_NAME#*-github}" != "${JOB_NAME}" ]; then
+#if [ "${JOB_NAME#*-github}" != "${JOB_NAME}" ]; then
     # This is a Github PR build, override the branch name accordingly
-    ATS_BRANCH="github"
-    if [ -w "${OUTPUT_BASE}/${ATS_BRANCH}" ]; then
-        output="${OUTPUT_BASE}/${ATS_BRANCH}/${ghprbPullId}"
-        [ ! -d "${output}" ] && mkdir "${output}"
-    fi
-    github_pr=" PR #${ghprbPullId}"
-    results_url="https://ci.trafficserver.apache.org/clang-analyzer/${ATS_BRANCH}/${ghprbPullId}/"
-else
-    test -w "${OUTPUT_BASE}/${ATS_BRANCH}" && output="${OUTPUT_BASE}/${ATS_BRANCH}"
-    github_pr=""
-    results_url="https://ci.trafficserver.apache.org/clang-analyzer/${ATS_BRANCH}/"
-fi
+#    ATS_BRANCH="github"
+#    if [ -w "${OUTPUT_BASE}/${ATS_BRANCH}" ]; then
+#        output="${OUTPUT_BASE}/${ATS_BRANCH}/${ghprbPullId}"
+#        [ ! -d "${output}" ] && mkdir "${output}"
+#    fi
+#    github_pr=" PR #${ghprbPullId}"
+#    results_url="https://ci.trafficserver.apache.org/clang-analyzer/${ATS_BRANCH}/${ghprbPullId}/"
+#else
+#    test -w "${OUTPUT_BASE}/${ATS_BRANCH}" && output="${OUTPUT_BASE}/${ATS_BRANCH}"
+#    github_pr=""
+#    results_url="https://ci.trafficserver.apache.org/clang-analyzer/${ATS_BRANCH}/"
+#fi
+
+export LLVM_BASE=/usr
 
 # Tell scan-build to use clang as the underlying compiler to actually build
 # source. If you don't do this, it will default to GCC.
@@ -74,19 +96,17 @@ grep -q 80010 configure.ac && echo "8.1.x branch detected, stop here!" && exit 0
 [ "$output" != "/tmp" ] && echo "Results (if any) can be found at ${results_url}"
 autoreconf -fi
 ${LLVM_BASE}/bin/scan-build-10 --keep-cc ./configure ${configure} \
-    CXXFLAGS="-stdlib=libc++ -I${LLVM_BASE}/include/c++/v1" \
-    LDFLAGS="-L${LLVM_BASE}/lib64 -Wl,-rpath=${LLVM_BASE}/lib64" \
-    || exit 1
+	|| exit 1
 
 # Since we don't want the analyzer to look at yamlcpp, build it first
 # without scan-build. The subsequent make will then skip it.
 # the all-local can be taken out and lib changed to lib/yamlcpp
 # by making yaml cpp a SUBDIRS in lib/Makefile.am.
-${ATS_MAKE} -j $NPROCS -C lib all-local V=1 Q= || exit 1
+${ATS_MAKE} -j ${NPROCS} -C lib all-local V=1 Q= || exit 1
 
 ${LLVM_BASE}/bin/scan-build-10 --keep-cc ${checkers} ${options} -o ${output} \
     --html-title="clang-analyzer: ${ATS_BRANCH}${github_pr}" \
-    ${ATS_MAKE} -j $NPROCS V=1 Q=
+    ${ATS_MAKE} -j ${NPROCS} V=1 Q=
 status=$?
 
 # Clean the work area unless NOCLEAN is set. This is just for debugging when you
