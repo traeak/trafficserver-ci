@@ -106,10 +106,10 @@ pipeline {
             }
           }
         }
-        stage('clang-format') {
+        stage('clang format') {
           steps {
             script {
-              buildJob('clang-format', env.GITHUB_BRANCH + '/clang-format')
+              buildJob('clang_format', env.GITHUB_BRANCH + '/clang-format')
             }
           }
         }
@@ -151,7 +151,7 @@ pipeline {
             }
           }
         }
-        stage('cache-tests') {
+        stage('cache_tests') {
           steps {
             script {
               //buildJob('autest', env.GITHUB_BRANCH + '/cache-tests')
