@@ -109,7 +109,7 @@ pipeline {
         stage('clang format') {
           steps {
             script {
-              buildJob('clang_format', env.GITHUB_BRANCH + '/clang-format')
+              buildJob('clang_format', env.GITHUB_BRANCH + '/clang_format')
             }
           }
         }
@@ -135,19 +135,17 @@ pipeline {
 
     stage('Verification') {
       parallel {
-        stage('clang-analyzer') {
+        stage('clang analyzer') {
           steps {
             script {
-              //buildJob('clang-analyzer', env.GITHUB_BRANCH + '/clang-analyzer')
-              echo "skipping clang-analyzer"
+              buildJob('clang-analyzer', env.GITHUB_BRANCH + '/clang_analyzer')
             }
           }
         }
         stage('autests') {
           steps {
             script {
-              //buildJob('autest', env.GITHUB_BRANCH + '/autest')
-              echo "skipping autest"
+              buildJob('autest', env.GITHUB_BRANCH + '/autest')
             }
           }
         }
