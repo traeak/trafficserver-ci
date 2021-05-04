@@ -1,0 +1,73 @@
+pipeline {
+  agent {
+    docker {
+      registryUrl 'https://controller.trafficserver.org/'
+      image 'ats/${DISTRO}'
+      args '-v /home/jenkins/ccache:/tmp/ccache:rw'
+      label 'linux'
+    }
+  }
+  environment {
+    CCACHE_DIR = "/tmp/ccache"
+  }
+  stages {
+    stage('Initialization') {
+      steps {
+        script {
+          String newname = "${GITHUB_BRANCH} ${DISTRO} ${COMPILER} ${TYPE}"
+          currentBuild.displayName = "#${BUILD_NUMBER} " + newname
+          /* these were a hack to try to stick these into a view
+          currentBuild.rawBuild.project.description = newname
+          currentBuild.rawBuild.project.setDisplayName("OS_Build")
+          */
+          if (env.SHA1) {
+            currentBuild.description = env.SHA1
+          }
+        }
+      }
+    }
+    stage('Clone') {
+      steps {
+        echo 'Starting Clone'
+        dir('ci') {
+          git branch: 'full_pipeline', url: 'https://github.com/traeak/trafficserver-ci'
+        }
+        dir('src') {
+          script {
+            if (env.SHA1) {
+              checkout([$class: 'GitSCM',
+                branches: [[name: env.SHA1]],
+                userRemoteConfigs: [[url: env.GITHUB_URL]]])
+            } else {
+              git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
+            }
+          }
+        }
+        echo 'Finished Clone'
+      }
+    }
+    stage('Build') {
+      steps {
+        echo 'Starting Build'
+        dir('src') {
+          sh('source ../ci/jenkins/bin/environment.sh && autoreconf -if && ../ci/jenkins/bin/build.sh')
+        }
+        echo 'Finished Build'
+      }
+    }
+    stage('Tests') {
+      steps {
+        echo 'Starting Tests'
+        dir('src') {
+          sh('source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/regression.sh')
+        }
+        echo 'Finished Tests'
+      }
+    }
+  }
+  post {
+    cleanup {
+      cleanWs()
+    }
+  }
+}
