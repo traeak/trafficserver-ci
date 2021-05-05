@@ -35,17 +35,24 @@ pipeline {
           git url: 'https://github.com/traeak/trafficserver-ci',
             branch: 'full_pipeline'
         }
-        dir('src') {
-          script {
-            if (env.SHA1) {
-              checkout([$class: 'GitSCM',
-                branches: [[name: env.SHA1]],
-                userRemoteConfigs: [[url: env.GITHUB_URL]]])
-            } else {
-              git url: env.GITHUB_URL, branch: env.GITHUB_BRANCH
-            }
-          }
-        }
+				dir('src') {
+					script {
+						String branch = env.SHA1
+						if (! branch) {
+							branch = '*/' + env.GITHUB_BRANCH
+						}
+
+						try {
+							checkout([$class: 'GitSCM',
+								branches: [[name: branch]],
+								userRemoteConfigs: [[url: env.GITHUB_URL]]])
+						} catch(error) {
+							checkout([$class: 'GitSCM',
+								branches: [[name: branch]],
+								userRemoteConfigs: [[url: env.GITHUB_URL]]])
+						}
+					}
+				}
         echo 'Finished Cloning'
       }
     }
