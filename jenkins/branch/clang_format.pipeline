@@ -28,6 +28,7 @@ pipeline {
     }
 
     stage('Clone') {
+			options { retry(2) }
       steps {
         dir('ci') {
           git url: 'https://github.com/traeak/trafficserver-ci',
@@ -39,16 +40,9 @@ pipeline {
 						if (! branch) {
 							branch = '*/' + env.GITHUB_BRANCH
 						}
-
-						try {
-							checkout([$class: 'GitSCM',
-								branches: [[name: branch]],
-								userRemoteConfigs: [[url: env.GITHUB_URL]]])
-						} catch(error) {
-							checkout([$class: 'GitSCM',
-								branches: [[name: branch]],
-								userRemoteConfigs: [[url: env.GITHUB_URL]]])
-						}
+						checkout([$class: 'GitSCM',
+							branches: [[name: branch]],
+							userRemoteConfigs: [[url: env.GITHUB_URL]]])
 					}
 				}
         echo 'Finished Cloning'
