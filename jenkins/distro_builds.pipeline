@@ -12,7 +12,7 @@ def doParallelBuilds() {
     }
   }
 
-  String jjob = env.GITHUB_BRANCH + '/' + 'os_build'
+  String jjob = 'os_build'
   echo jjob
 
   def builders = [:]
