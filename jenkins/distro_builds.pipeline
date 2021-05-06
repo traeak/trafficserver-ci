@@ -40,7 +40,7 @@ def doParallelBuilds() {
 
 def buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
   String name = "${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}"
-  echo "Build of '${name}'"
+  echo "Build: ${name}"
   if (DRY_RUN) { jobName = "Branch_Builds/dummy" }
   def jobBuild = build job: jobName, propagate: false,
     parameters: [
