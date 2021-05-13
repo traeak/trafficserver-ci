@@ -31,7 +31,8 @@ HARDENING=""
 CCACHE="--enable-ccache"
 
 # When to enable -Werror
-WERROR="--enable-werror"
+#WERROR="--enable-werror"
+WERROR=""
 
 # Optional settings
 ASAN=""
