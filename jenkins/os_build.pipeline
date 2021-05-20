@@ -4,6 +4,7 @@ pipeline {
       registryUrl 'https://controller.trafficserver.org/'
       image 'ats/${DISTRO}'
       args '-v /home/jenkins/ccache:/tmp/ccache:rw'
+			args '--network host'
       label 'linux'
     }
   }
