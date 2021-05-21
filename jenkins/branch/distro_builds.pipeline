@@ -28,35 +28,23 @@ def doParallelBuilds() {
     builders[jobName] = {
       stage(jobName) {
         script {
-          def result = buildJob(jobName, jjob, distro, compiler, type)
-          if (result == 'FAILURE') {
-            error("${jobName} build failed")
-						currentBuild.result = 'FAILURE'
-          }
+  				String name = "${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}"
+  				echo "Build: " + name
+  				if (DRY_RUN) { jobName = "Branch_Builds/dummy" }
+  				build job: jobName,
+    				parameters: [
+      				string(name: 'GITHUB_URL', value: GITHUB_URL),
+      				string(name: 'GITHUB_BRANCH', value: GITHUB_BRANCH),
+      				string(name: 'DISTRO', value: distro),
+      				string(name: 'COMPILER', value: compiler),
+      				string(name: 'TYPE', value: type)
+    				]
         }
       }
     }
   }
 
   parallel builders
-}
-
-String buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
-  String name = "${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}"
-  echo "Build: " + name
-  if (DRY_RUN) { jobName = "Branch_Builds/dummy" }
-  def jobBuild = build job: jobName, propagate: false,
-    parameters: [
-      string(name: 'GITHUB_URL', value: GITHUB_URL),
-      string(name: 'GITHUB_BRANCH', value: GITHUB_BRANCH),
-      string(name: 'DISTRO', value: distro),
-      string(name: 'COMPILER', value: compiler),
-      string(name: 'TYPE', value: type)
-    ]
-  def result = jobBuild.getResult()
-  echo "Build of " + name + " returned result: " + result
-  if ('FAILURE' == result) { error("${jobName} failed") }
-	return result
 }
 
 String shaForBranch(url, branch) {
