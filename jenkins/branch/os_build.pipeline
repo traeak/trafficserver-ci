@@ -16,10 +16,6 @@ pipeline {
         script {
           String newname = "${GITHUB_BRANCH} ${DISTRO} ${COMPILER} ${TYPE}"
           currentBuild.displayName = "#${BUILD_NUMBER} " + newname
-          /* these were a hack to try to stick these into a view
-          currentBuild.rawBuild.project.description = newname
-          currentBuild.rawBuild.project.setDisplayName("OS_Build")
-          */
           if (env.SHA1) {
             currentBuild.description = env.SHA1
           }
@@ -31,7 +27,8 @@ pipeline {
       steps {
         echo 'Starting Clone'
         dir('ci') {
-          git branch: 'full_pipeline', url: 'https://github.com/traeak/trafficserver-ci'
+          git branch: 'full_pipeline',
+						url: 'https://github.com/traeak/trafficserver-ci'
         }
 				dir('src') {
 					script {
@@ -51,7 +48,11 @@ pipeline {
       steps {
         echo 'Starting Build'
         dir('src') {
-          sh('source ../ci/jenkins/bin/environment.sh && autoreconf -if && ../ci/jenkins/bin/build.sh')
+          sh '''
+					source ../ci/jenkins/bin/environment.sh
+					autoreconf -if
+					source ../ci/jenkins/bin/build.sh
+					'''
         }
         echo 'Finished Build'
       }
@@ -60,7 +61,10 @@ pipeline {
       steps {
         echo 'Starting Tests'
         dir('src') {
-          sh('source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/regression.sh')
+					sh '''
+          source ../ci/jenkins/bin/environment.sh
+					source ../ci/jenkins/bin/regression.sh
+					'''
         }
         echo 'Finished Tests'
       }

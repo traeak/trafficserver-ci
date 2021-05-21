@@ -17,6 +17,8 @@ def doParallelBuilds() {
 
   def builders = [:]
 
+	currentBuild.result = 'SUCCESS'
+
   for (buildjob in buildjobs) {
     def params = buildjob.split(',')
     def distro = params[0]
@@ -26,9 +28,10 @@ def doParallelBuilds() {
     builders[jobName] = {
       stage(jobName) {
         script {
-          result = buildJob(jobName, jjob, distro, compiler, type)
+          def result = buildJob(jobName, jjob, distro, compiler, type)
           if (result == 'FAILURE') {
             error("${jobName} build failed")
+						currentBuild.result = 'FAILURE'
           }
         }
       }
@@ -56,7 +59,7 @@ String buildJob(String ghcontext, String jobName, String distro, String compiler
 	return result
 }
 
-def shaForBranch(url, branch) {
+String shaForBranch(url, branch) {
   sha1 = sh (
     script: "set -- `git ls-remote -h $url refs/heads/$branch`; echo \${1}",
     returnStdout: true
