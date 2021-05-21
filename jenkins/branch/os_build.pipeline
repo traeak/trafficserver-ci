@@ -19,6 +19,7 @@ pipeline {
           if (env.SHA1) {
             currentBuild.description = env.SHA1
           }
+					sh 'printenv'
         }
       }
     }
