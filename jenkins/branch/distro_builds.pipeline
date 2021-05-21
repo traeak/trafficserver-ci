@@ -29,7 +29,7 @@ def doParallelBuilds() {
         script {
   				String name = jobName + ' ' + GITHUB_BRANCH
   				echo "Build: " + name
-  				if (DRY_RUN) { jobName = "Branch_Builds/dummy" }
+  				if (DRY_RUN) { jjob = "Branch_Builds/dummy" }
   				build(job: jjob,
     				parameters: [
       				string(name: 'GITHUB_URL', value: GITHUB_URL),
