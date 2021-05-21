@@ -38,7 +38,7 @@ def doParallelBuilds() {
   parallel builders
 }
 
-def buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
+String buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
   String name = "${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}"
   echo "Build: " + name
   if (DRY_RUN) { jobName = "Branch_Builds/dummy" }
@@ -53,6 +53,7 @@ def buildJob(String ghcontext, String jobName, String distro, String compiler, S
   def result = jobBuild.getResult()
   echo "Build of " + name + " returned result: " + result
   if ('FAILURE' == result) { error("${jobName} failed") }
+	return result
 }
 
 def shaForBranch(url, branch) {

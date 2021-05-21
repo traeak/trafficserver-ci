@@ -34,7 +34,7 @@ def doParallelBuilds() {
   parallel builders
 }
 
-def buildJob(String ghcontext, String jobName) {
+String buildJob(String ghcontext, String jobName) {
   echo "Build of '${jobName}'"
   if (DUMMY) { jobName = "Branch_Builds/dummy" }
   def jobBuild = build job: jobName, propagate: false,
@@ -46,6 +46,7 @@ def buildJob(String ghcontext, String jobName) {
   def result = jobBuild.getResult()
   echo "Build of '${jobName}' returned result: ${result}"
   if ('FAILURE' == result) { error("${jobName} failed") }
+	return result
 }
 
 def shaForBranch(url, branch) {
