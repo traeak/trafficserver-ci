@@ -16,7 +16,7 @@ def doParallelBuilds() {
 
   def builders = [:]
 
-	currentBuild.result = 'SUCCESS'
+  currentBuild.result = 'SUCCESS'
 
   for (buildjob in buildjobs) {
     def params = buildjob.split(',')
@@ -27,17 +27,17 @@ def doParallelBuilds() {
     builders[jobName] = {
       stage(jobName) {
         script {
-  				String name = jobName + ' ' + GITHUB_BRANCH
-  				echo "Build: " + name
-  				if (DRY_RUN) { jjob = "Branch_Builds/dummy" }
-  				build(job: jjob,
-    				parameters: [
-      				string(name: 'GITHUB_URL', value: GITHUB_URL),
-      				string(name: 'GITHUB_BRANCH', value: GITHUB_BRANCH),
-      				string(name: 'DISTRO', value: distro),
-      				string(name: 'COMPILER', value: compiler),
-      				string(name: 'TYPE', value: type)
-    				])
+          String name = jobName + ' ' + env.GITHUB_BRANCH
+          echo "Build: " + name
+          if (DRY_RUN) { jjob = "Branch_Builds/dummy" }
+          build(job: jjob,
+            parameters: [
+              string(name: 'GITHUB_URL', value: env.GITHUB_URL),
+              string(name: 'GITHUB_BRANCH', value: env.GITHUB_BRANCH),
+              string(name: 'DISTRO', value: distro),
+              string(name: 'COMPILER', value: compiler),
+              string(name: 'TYPE', value: type)
+            ])
         }
       }
     }
@@ -65,20 +65,19 @@ pipeline {
           if (! env.DISTRO) {
             def dparts = env.JOB_BASE_NAME.split("_|-")
             if (3 != dparts.length) {
-              error("Invalid job base name ${JOB_BASE_NAME}")
+              error("Invalid job base name " + env.JOB_BASE_NAME)
             }
             env.DISTRO = [ dparts[1], dparts[2] ].join(':')
           }
           if (! env.GITHUB_BRANCH) {
             def bparts = env.JOB_NAME.split('/')
             if (2 != bparts.length) {
-              error("Invalid branch name from ${JOB_NAME}")
+              error("Invalid branch name from " + env.JOB_NAME)
             }
             env.GITHUB_BRANCH = bparts[0]
           }
 
-
-          currentBuild.displayName = "${GITHUB_BRANCH} ${DISTRO}"
+          currentBuild.displayName = env.GITHUB_BRANCH + " " + env.DISTRO
           if (! env.SHA1) {
             env.SHA1 = shaForBranch(env.GITHUB_URL, env.GITHUB_BRANCH)
           }

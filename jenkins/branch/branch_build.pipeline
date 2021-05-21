@@ -46,7 +46,7 @@ String buildJob(String ghcontext, String jobName) {
   def result = jobBuild.getResult()
   echo "Build of " + jobName + " returned result: " + result
   if ('FAILURE' == result) { error("${jobName} failed") }
-	return result
+  return result
 }
 
 def shaForBranch(url, branch) {

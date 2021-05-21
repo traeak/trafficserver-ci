@@ -28,23 +28,23 @@ pipeline {
     }
 
     stage('Clone') {
-			options { retry(2) }
+      options { retry(2) }
       steps {
         dir('ci') {
           git url: 'https://github.com/traeak/trafficserver-ci',
             branch: 'full_pipeline'
         }
-				dir('src') {
-					script {
-						String branch = env.SHA1
-						if (! branch) {
-							branch = '*/' + env.GITHUB_BRANCH
-						}
-						checkout([$class: 'GitSCM',
-							branches: [[name: branch]],
-							userRemoteConfigs: [[url: env.GITHUB_URL]]])
-					}
-				}
+        dir('src') {
+          script {
+            String branch = env.SHA1
+            if (! branch) {
+              branch = '*/' + env.GITHUB_BRANCH
+            }
+            checkout([$class: 'GitSCM',
+              branches: [[name: branch]],
+              userRemoteConfigs: [[url: env.GITHUB_URL]]])
+          }
+        }
         echo 'Finished Cloning'
       }
     }
