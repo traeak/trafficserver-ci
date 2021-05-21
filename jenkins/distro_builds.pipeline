@@ -51,7 +51,7 @@ def buildJob(String ghcontext, String jobName, String distro, String compiler, S
       string(name: 'TYPE', value: type)
     ]
   def result = jobBuild.getResult()
-  echo "Build of " + ${name} + " returned result: ${result}"
+  echo "Build of " + name + " returned result: ${result}"
   if ('FAILURE' == result) { error("${jobName} failed") }
 }
 
