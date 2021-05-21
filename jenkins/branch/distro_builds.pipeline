@@ -13,7 +13,6 @@ def doParallelBuilds() {
   }
 
   String jjob = env.GITHUB_BRANCH + '/os_build'
-  echo jjob
 
   def builders = [:]
 
@@ -28,17 +27,17 @@ def doParallelBuilds() {
     builders[jobName] = {
       stage(jobName) {
         script {
-  				String name = "${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}"
+  				String name = jobName + ' ' + GITHUB_BRANCH
   				echo "Build: " + name
   				if (DRY_RUN) { jobName = "Branch_Builds/dummy" }
-  				build job: jobName,
+  				build(job: jjob,
     				parameters: [
       				string(name: 'GITHUB_URL', value: GITHUB_URL),
       				string(name: 'GITHUB_BRANCH', value: GITHUB_BRANCH),
       				string(name: 'DISTRO', value: distro),
       				string(name: 'COMPILER', value: compiler),
       				string(name: 'TYPE', value: type)
-    				]
+    				])
         }
       }
     }
