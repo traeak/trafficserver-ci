@@ -1,7 +1,7 @@
 pipeline {
 	agent {
 		docker {
-			image 'ats/ubuntu:20.04'
+			image 'controller.trafficserver.org/ats/ubuntu:20.04'
 			registryUrl 'https://controller.trafficserver.org/'
 			args '-v /home/rooter/clang-analyzer:/tmp/clang-analyzer:rw'
 			label 'docker'

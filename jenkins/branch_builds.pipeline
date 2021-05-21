@@ -1,0 +1,74 @@
+String buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
+    echo "Build of '${jobName}-${distro}-${compiler}-${type}'"
+    def jobBuild = build job: jobName, propagate: false,
+        parameters: [
+            string(name: 'DISTRO', value: distro),
+            string(name: 'COMPILER', value: compiler),
+            string(name: 'TYPE', value: type)
+        ]
+    def jobResult = jobBuild.getResult()
+    echo "Build of '${jobName}-${distro}-${compiler}-${type}' returned result: ${jobResult}"
+    return jobResult
+}
+
+def parallelTasks() {
+ def buildparams = [
+    [ 'centos:7', 'gcc', 'release' ],
+    [ 'centos:7', 'gcc', 'debug' ],
+    [ 'centos:8', 'gcc', 'debug' ],
+    [ 'centos:8', 'clang', 'release' ],
+
+    [ 'fedora:32', 'gcc', 'release' ],
+    [ 'fedora:32', 'clang', 'debug' ],
+    [ 'fedora:33', 'gcc', 'debug' ],
+    [ 'fedora:33', 'clang', 'release' ],
+
+    [ 'ubuntu:18.04', 'gcc', 'release' ],
+    [ 'ubuntu:18.04', 'clang', 'debug' ],
+    [ 'ubuntu:20.04', 'gcc', 'debug' ],
+    [ 'ubuntu:20.04', 'clang', 'release' ]
+  ]
+
+  def builders = [:]
+
+  for (params in buildparams) {
+    def distro = params[0]
+    def compiler = params[1]
+    def type = params[2]
+    String jobName = distro + ' ' + compiler + ' ' + type
+    builders[jobName] = {
+      stage(jobName) {
+        //node {
+          script {
+            result = buildJob(jobName, 'BNO/build-pparam', distro, compiler, type)
+            if (result == 'FAILURE') {
+              error("${jobName} build failed")
+            }
+          }
+        //}
+      }
+    }
+  }
+
+  parallel builders
+}
+
+pipeline {
+  agent any
+  options {
+    parallelsAlwaysFailFast()
+  }
+
+  stages {
+    stage('Initialization') {
+      steps {
+        buildName "#${BUILD_NUMBER} ${SHA1}"
+      }
+    }
+    stage('OS Builds') {
+      steps {
+        parallelTasks()
+      }
+    }
+  }
+}

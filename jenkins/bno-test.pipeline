@@ -1,0 +1,104 @@
+String buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
+        setGitHubPullRequestStatus(context: ghcontext, message: 'Building', state: 'PENDING')
+        def jobBuild = build job: jobName, propagate: false,
+            parameters: [
+//                string(name: 'SHA1', value: GITHUB_PR_HEAD_SHA),
+//                string(name: 'GITHUB_URL', value: GITHUB_REPO_GIT_URL),
+//                string(name: 'GITHUB_PR_NUMBER', value: GITHUB_PR_NUMBER),
+                string(name: 'DISTRO', value: distro),
+                string(name: 'COMPILER', value: compiler),
+                string(name: 'TYPE', value: type)
+            ]
+        def jobResult = jobBuild.getResult()
+        echo "Build of '${jobName}-${distro}-${compiler}-${type}' returned result: ${jobResult}"
+
+        if (jobResult == 'SUCCESS') {
+            setGitHubPullRequestStatus(context: ghcontext, message: 'Success', state: jobResult)
+        } else {
+            setGitHubPullRequestStatus(context: ghcontext, message: 'Failure', state: jobResult)
+        }
+    return jobResult
+}
+
+pipeline {
+    agent none
+
+    stages {
+        stage('OS Builds') {
+            parallel {
+                stage('Centos 7 gcc release') {
+                    steps {
+                        echo "${GITHUB_PR_HEAD_SHA}"
+                        echo "${GITHUB_REPO_GIT_URL}"    
+                        echo "${GITHUB_PR_NUMBER}"
+                        script {
+                            result = buildJob('Centos:7-gcc-release', 'Build/build-pparam', 'centos:7', 'gcc', 'release')
+                            if (result == 'FAILURE') {
+                                error('Centos:7-gcc-release build failed')
+                            }
+                        }
+                    }
+                }
+                stage('Centos 7 gcc debug') {
+                    steps {
+                        script {
+                            result = buildJob('Centos:7-gcc-debug', 'Build/build-pparam', 'centos:7', 'gcc', 'debug')
+                            if (result == 'FAILURE') {
+                                error('Centos:7-gcc-debug build failed')
+                            }
+                        }
+                    }
+                }
+                /*
+                stage('Centos 8 clang release') {
+                    steps {
+                        script {
+                            result = buildJob('Centos:8-gcc-debug', 'Build/build-pparam', 'centos:8', 'clang', 'release')
+                            if (result == 'FAILURE') {
+                                error('Centos:8-clang-release build failed')                   
+                        }
+                    }
+                }
+                stage('Centos 8 clang debug') {
+                    steps {
+                        script {
+                            result = buildJob('Centos:8-gcc-debug', 'Build/build-pparam', 'centos:8', 'clang', 'debug')
+                            if (result == 'FAILURE') {
+                                error('Centos:8-gcc-debug build failed')     
+                        }
+                    }
+                }
+
+                stage('Ubuntu 20.04 gcc release') {
+                    steps {
+                        script {
+                            result = buildJob('Centos:8-gcc-debug', 'Build/build-pparam', 'ubuntu:20.04', 'gcc', 'release')
+                            if (result == 'FAILURE') {
+                                error('Ubuntu:20.04-gcc-release build failed')                   
+                        }
+                    }
+                }
+
+                stage('Fedora 32 gcc debug') {
+                    steps {
+                        script {
+                            result = buildJob('Fedora:32-gcc-debug', 'Build/build-pparam', 'fedora:32', 'gcc', 'debug')
+                            if (result == 'FAILURE') {
+                                error('fedora:32-gcc-debug build failed')   
+                        }
+                    }
+                }
+                stage('Fedora 33 clang release') {
+                    steps {
+                        script {
+                            result = buildJob('Fedora:33-gcc-debug', 'Build/build-pparam', 'fedora:33', 'clang', 'release')
+                            if (result == 'FAILURE') {
+                                error('fedora:33-clang-release build failed')   
+                        }
+                    }
+                }
+                */
+            }
+        }
+    }
+}

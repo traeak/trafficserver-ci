@@ -1,0 +1,95 @@
+DRY_RUN = false
+
+def doParallelBuilds() {
+	def buildjobs = []
+
+	def types = env.TYPES.split(' ')
+
+	for (type in types) {
+		buildjobs.add([env.DISTRO, env.COMPILER, type].join(','))
+	}
+
+  def builders = [:]
+
+  for (buildjob in buildjobs) {
+		def params = buildjob.split(',')
+		def distro = params[0]
+		def compiler = params[1]
+		def type = params[2]
+		String jobName = distro + ' ' + compiler + ' ' + type
+		builders[jobName] = {
+			stage(jobName) {
+				script {
+					result = buildJob(jobName, '9.0.x/OS_Build', distro, compiler, type)
+					if (result == 'FAILURE') {
+						error("${jobName} build failed")
+					}
+				}
+			}
+		}
+  }
+
+  parallel builders
+}
+
+def buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
+	String name = '${jobName}-${GITHUB_BRANCH}-${distro}-${compiler}-${type}'
+	echo "Build of '${name}'"
+	if (DRY_RUN) { jobName = "Branch_Builds/dummy" }
+	def jobBuild = build job: jobName, propagate: false,
+		parameters: [
+			string(name: 'GITHUB_URL', value: GITHUB_URL),
+			string(name: 'GITHUB_BRANCH', value: GITHUB_BRANCH),
+			string(name: 'DISTRO', value: distro),
+			string(name: 'COMPILER', value: compiler),
+			string(name: 'TYPE', value: type)
+		]
+	def result = jobBuild.getResult()
+	echo "Build of '${name}' returned result: ${result}"
+	if ('FAILURE' == result) { error("${jobName} failed") }
+}
+
+def shaForBranch(url, branch) {
+	sha1 = sh (
+		script: "set -- `git ls-remote -h $url refs/heads/$branch`; echo \${1}",
+		returnStdout: true
+	).trim()
+	return sha1
+}
+
+pipeline {
+	agent {
+		docker {
+			image 'ats/${DISTRO}'
+			args '-v ${HOME}/ccache:/tmp/ccache:rw'
+			label 'linux'
+		}
+	}
+	environment { CCACHE_DIR = "/tmp/ccache" }
+
+	stages {
+		stage('Initializaztion') {
+			steps {
+				script {
+					currentBuild.displayName = "${GITHUB_BRANCH} ${DISTRO} ${COMPILER}"
+					if (! env.SHA1) {
+						env.SHA1 = shaForBranch(env.GITHUB_URL, env.GITHUB_BRANCH)
+					}
+					echo "Building hash ${SHA1}"
+				}
+			}
+		}
+		stage('Builds') {
+			steps {
+				script {
+					doParallelBuilds()
+				}
+			}
+		}
+	}
+	post {
+		cleanup {
+			cleanWs()
+		}
+	}
+}

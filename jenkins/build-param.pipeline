@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'ats/${DISTRO}'
+            image 'controller.trafficserver.org/ats/${DISTRO}'
             args '-v /home/rooter/ccache:/tmp/ccache:rw'
             label 'linux'
         }

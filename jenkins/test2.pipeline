@@ -1,0 +1,140 @@
+def parallelTasks() {
+  def buildjobs = [
+    [ 'centos:7', 'gcc', 'release' ],
+    [ 'centos:7', 'gcc', 'debug' ],
+    [ 'centos:8', 'gcc', 'debug' ],
+    [ 'centos:8', 'clang', 'release' ],
+
+    [ 'fedora:32', 'gcc', 'release' ],
+    [ 'fedora:32', 'clang', 'debug' ],
+    [ 'fedora:33', 'gcc', 'debug' ],
+    [ 'fedora:33', 'clang', 'release' ],
+
+    [ 'ubuntu:18.04', 'gcc', 'release' ],
+    [ 'ubuntu:18.04', 'clang', 'debug' ],
+    [ 'ubuntu:20.04', 'gcc', 'debug' ],
+    [ 'ubuntu:20.04', 'clang', 'release' ],
+  ]
+
+  def builders = [:]
+  String repo = 'controler.trafficserver.org'
+
+  for (params in buildjobs) {
+    def distro = params[0]
+    def compiler = params[1]
+    def type = params[2]
+    String jobName = distro + ' ' + compiler + ' ' + type
+    builders[jobName] = {
+      stage(jobName) {
+        script {
+          result = buildJob(jobName, 'BNO/build-pparam', distro, compiler, type)
+           if (result == 'FAILURE') {
+            error("${jobName} build failed")
+          }
+        }
+      }
+    }
+  }
+
+  parallel builders
+}
+
+String buildJob(String ghcontext, String jobName, String distro, String compiler, String type) {
+    echo "Build of '${jobName}-${distro}-${compiler}-${type}'"
+    def jobBuild = build job: jobName, propagate: false,
+        parameters: [
+            string(name: 'DISTRO', value: distro),
+            string(name: 'COMPILER', value: compiler),
+            string(name: 'TYPE', value: type)
+        ]
+    def jobResult = jobBuild.getResult()
+    echo "Build of '${jobName}-${distro}-${compiler}-${type}' returned result: ${jobResult}"
+    return jobResult
+}
+
+pipeline {
+  agent any
+  options {
+    parallelsAlwaysFailFast()
+  }
+
+  stages {
+    stage('Initialization') {
+      steps {
+        buildName "#${BUILD_NUMBER} ${SHA1}"
+      }
+    }
+    stage('OS Builds') {
+      steps {
+        script {
+          parallelTasks()
+        }
+      }
+    }
+  }
+}
+
+/*
+pipeline {
+    agent {
+        docker {
+            image 'ats/${DISTRO}'
+            args '-v /home/rooter/ccache:/tmp/ccache:rw'
+            label 'linux'
+        }
+    }
+    environment {
+        CCACHE_DIR = "/tmp/ccache"
+    }
+    stages {
+      stage('Initializaztion') {
+        steps {
+          buildName "#${BUILD_NUMBER} ${DISTRO} ${COMPILER} ${TYPE}"
+        }
+      }
+      stage('Clone') {
+        steps {
+          sleep(10)
+                echo 'Starting Clone'
+                dir('ci') {
+                    git branch: 'full_pipeline', url: 'https://github.com/traeak/trafficserver-ci'
+                }
+                dir('src') {
+                    echo "${sha1}"
+                    checkout([$class: 'GitSCM',
+                        branches: [[name: sha1]],
+                        extensions: [],
+                        userRemoteConfigs: [[url: 'https://jenkins.trafficserver.org/mirror/trafficserver.git', refspec: '+refs/pull/*:refs/remotes/origin/pr/*']]])
+                }
+                echo 'Finished Clone'
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Starting Build'
+                dir('src') {
+                    sh('source ../ci/jenkins/bin/environment.sh && \
+                        autoreconf -if && \
+                        ../ci/jenkins/bin/build.sh')
+                }
+                sleep(10)
+                echo 'Finished Build'
+            }
+        }
+        stage('Tests') {
+            steps {
+                echo 'Starting Tests'
+                dir('src') {
+                    sh('source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/regression.sh')
+                }
+                echo 'Finished Tests'
+            }
+        }
+    }
+    post { 
+        cleanup { 
+            cleanWs()
+        }
+    }
+}
+*/
