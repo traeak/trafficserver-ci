@@ -1,9 +1,8 @@
 pipeline {
 	agent {
 		docker {
-			//image 'fedora:30'
-			image 'ats/fedora:32'
 			registryUrl 'https://controller.trafficserver.org/'
+			image 'controller.trafficserver.org/ats/fedora:32'
 			args '-v "${HOME}"/ccache:/tmp/ccache:rw'
 		}
 	}

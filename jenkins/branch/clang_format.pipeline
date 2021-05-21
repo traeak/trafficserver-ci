@@ -1,8 +1,8 @@
 pipeline {
   agent {
     docker {
-      image 'ats/docs_build:30'
       registryUrl 'https://controller.trafficserver.org/'
+      image 'controller.trafficserver.org/ats/docs_build:30'
       label 'docker'
       args '--network host'
     }

@@ -1,8 +1,8 @@
 pipeline {
   agent {
     docker {
-      image 'ats/centos:8'
       registryUrl 'https://controller.trafficserver.org/'
+      image 'controller.trafficserver.org/ats/centos:8'
       args '--init --cap-add=SYS_PTRACE --network=host -u root -v ${HOME}/ccache:/tmp/ccache:rw'
       label 'docker'
     }
