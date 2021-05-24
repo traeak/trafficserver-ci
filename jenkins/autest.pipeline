@@ -14,6 +14,8 @@ pipeline {
 	stages {
 		stage('Initialization') {
 			steps {
+				cleanWs()
+
 				script {
 					currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
 					if (env.SHA1) {
@@ -93,7 +95,9 @@ pipeline {
 			archiveArtifacts artifacts: 'output/**/*', fingerprint: false, allowEmptyArchive: true
 		}
 		cleanup { 
-			cleanWs()
+			cleanWs {
+				cleanWhenFailure(false)
+			}
 		}
 	}
 }

@@ -1,38 +1,36 @@
 pipeline {
-  agent {
-    docker {
-      registryUrl 'https://controller.trafficserver.org/'
-      image 'controller.trafficserver.org/ats/${DISTRO}'
-      args '-v /home/jenkins/ccache:/tmp/ccache:rw --network host'
-      label 'linux'
-    }
-  }
-  environment {
-    CCACHE_DIR = "/tmp/ccache"
-  }
-  stages {
-    stage('Initialization') {
-      steps {
-        script {
-          String newname = "${GITHUB_BRANCH} ${DISTRO} ${COMPILER} ${TYPE}"
-          currentBuild.displayName = "#${BUILD_NUMBER} " + newname
-          /* these were a hack to try to stick these into a view
-          currentBuild.rawBuild.project.description = newname
-          currentBuild.rawBuild.project.setDisplayName("OS_Build")
-          */
-          if (env.SHA1) {
-            currentBuild.description = env.SHA1
-          }
-        }
-      }
-    }
-    stage('Clone') {
+	agent {
+		docker {
+			registryUrl 'https://controller.trafficserver.org/'
+			image 'controller.trafficserver.org/ats/${DISTRO}'
+			args '-v /home/jenkins/ccache:/tmp/ccache:rw --network host'
+			label 'linux'
+		}
+	}
+	environment {
+		CCACHE_DIR = "/tmp/ccache"
+	}
+	stages {
+		stage('Initialization') {
+			steps {
+				cleanWs()
+
+				script {
+					String newname = "${GITHUB_BRANCH} ${DISTRO} ${COMPILER} ${TYPE}"
+					currentBuild.displayName = "#${BUILD_NUMBER} " + newname
+					if (env.SHA1) {
+						currentBuild.description = env.SHA1
+					}
+				}
+			}
+		}
+		stage('Clone') {
 			options { retry(2) }
-      steps {
-        echo 'Starting Clone'
-        dir('ci') {
-          git branch: 'full_pipeline', url: 'https://github.com/traeak/trafficserver-ci'
-        }
+			steps {
+				echo 'Starting Clone'
+				dir('ci') {
+					git branch: 'full_pipeline', url: 'https://github.com/traeak/trafficserver-ci'
+				}
 				dir('src') {
 					script {
 						branch = '*/' + env.GITHUB_BRANCH
@@ -41,38 +39,41 @@ pipeline {
 							userRemoteConfigs: [[url: env.GITHUB_URL]]])
 					}
 				}
-        echo 'Finished Clone'
-      }
-    }
-    stage('Build') {
-      steps {
-        echo 'Starting Build'
-        dir('src') {
-          sh '''
+				echo 'Finished Clone'
+			}
+		}
+		stage('Build') {
+			steps {
+				echo 'Starting Build'
+				dir('src') {
+					sh '''
 					source ../ci/jenkins/bin/environment.sh
 					autoreconf -if
 					../ci/jenkins/bin/build.sh
 					'''
-        }
-        echo 'Finished Build'
-      }
-    }
-    stage('Tests') {
-      steps {
-        echo 'Starting Tests'
-        dir('src') {
+				}
+				echo 'Finished Build'
+			}
+		}
+		stage('Tests') {
+			steps {
+				echo 'Starting Tests'
+				dir('src') {
 					sh '''
-          source ../ci/jenkins/bin/environment.sh
+					source ../ci/jenkins/bin/environment.sh
 					../ci/jenkins/bin/regression.sh
 					'''
-        }
-        echo 'Finished Tests'
-      }
-    }
-  }
-  post {
-    cleanup {
-      cleanWs()
-    }
-  }
+				}
+				echo 'Finished Tests'
+			}
+		}
+	}
+
+	post {
+		cleanup {
+			cleanWs {
+				cleanWhenFailure(false)
+			}
+		}
+	}
 }

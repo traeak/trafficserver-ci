@@ -16,6 +16,8 @@ pipeline {
   stages {
     stage('Initialization') {
       steps {
+				cleanWs()
+
         script {
           currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
         }
@@ -45,7 +47,9 @@ pipeline {
   }
   post {
     always {
-      cleanWs()
+			cleanWs {
+				cleanWhenFailure(false)
+			}
     }
   }
 }

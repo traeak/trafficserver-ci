@@ -14,6 +14,7 @@ pipeline {
 	stages {
 		stage('Initialization') {
 			steps {
+				cleanWs()
 				script {
 					currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
 					if (env.SHA1) {
@@ -45,15 +46,21 @@ pipeline {
 		stage('Build') {
 			steps {
 				dir('src') {
-					//sh 'source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/out_of_tree.sh'
 					echo "Building"
+					sh '''
+					source ../ci/jenkins/bin/environment.sh
+					source ../ci/jenkins/bin/out_of_tree.sh
+					'''
 				}
 			}
 		}
 	}
+
 	post {
 		always {
-			cleanWs()
+			cleanWs {
+				cleanWhenFailure(false)
+			}
 		}
 	}
 }

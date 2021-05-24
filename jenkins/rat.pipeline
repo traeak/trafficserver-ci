@@ -12,6 +12,8 @@ pipeline {
 	stages {
 		stage('Initialization') {
 			steps {
+				cleanWs()
+
 				script {
 					currentBuild.displayName = "#${BUILD_NUMBER} ${GITHUB_BRANCH}"
 					if (env.SHA1) {
@@ -53,7 +55,9 @@ pipeline {
 	
 	post {
 		cleanup {
-			cleanWs()
+			cleanWs {
+				cleanWhenFailure(false)
+			}
 		}
 	}
 }
