@@ -38,7 +38,6 @@ def doParallelBuilds() {
 							string(name: 'COMPILER', value: compiler),
 							string(name: 'TYPE', value: type)
 						])
-					echo buildres
 					if ('SUCCESS' != buildres.getResult()) {
 						currentBuild.result = 'FAILURE'
 					}
