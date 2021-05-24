@@ -30,7 +30,7 @@ def doParallelBuilds() {
 					String name = jobName + ' ' + env.GITHUB_BRANCH
 					echo "Build: " + name
 					if (DRY_RUN) { jjob = "Branch_Builds/dummy" }
-					def result = build(job: jjob, propagate: false,
+					def buildres = build(job: jjob, propagate: false,
 						parameters: [
 							string(name: 'GITHUB_URL', value: env.GITHUB_URL),
 							string(name: 'GITHUB_BRANCH', value: env.GITHUB_BRANCH),
@@ -38,7 +38,8 @@ def doParallelBuilds() {
 							string(name: 'COMPILER', value: compiler),
 							string(name: 'TYPE', value: type)
 						])
-					if ('SUCCESS' != result) {
+					echo buildres
+					if ('SUCCESS' != buildres.getResult()) {
 						currentBuild.result = 'FAILURE'
 					}
 				}
