@@ -37,12 +37,13 @@ def doParallelBuilds() {
 String buildJob(String ghcontext, String jobName) {
 	echo "Build of: " + jobName
 	if (DUMMY) { jobName = "Branch_Builds/dummy" }
-	def jobBuild = build job: jobName, propagate: false,
+	def jobBuild = build(job: jobName, propagate: false,
 		parameters: [
 			string(name: 'GITHUB_URL', value: GITHUB_URL),
 			string(name: 'GITHUB_BRANCH', value: GITHUB_BRANCH),
 			string(name: 'SHA1', value: SHA1),
 		]
+	)
 	def result = jobBuild.getResult()
 	echo "Build of " + jobName + " returned result: " + result
 	if ('FAILURE' == result) { error("${jobName} failed") }
