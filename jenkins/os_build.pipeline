@@ -3,7 +3,7 @@ pipeline {
 		docker {
 			registryUrl 'https://controller.trafficserver.org/'
 			image 'controller.trafficserver.org/ats/${DISTRO}'
-			args '-v /home/jenkins/ccache:/tmp/ccache:rw --network host'
+			args '-v /home/jenkins/ccache:/tmp/ccache:rw --network=host'
 			label 'linux'
 		}
 	}
@@ -19,6 +19,7 @@ pipeline {
 					if (env.SHA1) {
 						currentBuild.description = env.SHA1
 					}
+					sh 'printenv'
 				}
 			}
 		}
@@ -27,11 +28,15 @@ pipeline {
 			steps {
 				echo 'Starting Clone'
 				dir('ci') {
-					git branch: 'full_pipeline', url: 'https://github.com/traeak/trafficserver-ci'
+					git branch: 'full_pipeline',
+						url: 'https://github.com/traeak/trafficserver-ci'
 				}
 				dir('src') {
 					script {
-						branch = '*/' + env.GITHUB_BRANCH
+						String branch = env.SHA1
+						if (! branch) {
+							branch = '*/' + env.GITHUB_BRANCH
+						}
 						checkout([$class: 'GitSCM',
 							branches: [[name: branch]],
 							userRemoteConfigs: [[url: env.GITHUB_URL]]])
@@ -47,7 +52,7 @@ pipeline {
 					sh '''
 					source ../ci/jenkins/bin/environment.sh
 					autoreconf -if
-					../ci/jenkins/bin/build.sh
+					source ../ci/jenkins/bin/build.sh
 					'''
 				}
 				echo 'Finished Build'
@@ -59,17 +64,18 @@ pipeline {
 				dir('src') {
 					sh '''
 					source ../ci/jenkins/bin/environment.sh
-					../ci/jenkins/bin/regression.sh
+					source ../ci/jenkins/bin/regression.sh
 					'''
 				}
 				echo 'Finished Tests'
 			}
 		}
 	}
-
+	/*
 	post {
 		cleanup {
 			cleanWs()
 		}
 	}
+	*/
 }
