@@ -14,8 +14,6 @@ pipeline {
 	stages {
 		stage('Initialization') {
 			steps {
-				cleanWs()
-
 				script {
 					if (! env.GITHUB_BRANCH) {
 						def bparts = env.JOB_NAME.split('/')

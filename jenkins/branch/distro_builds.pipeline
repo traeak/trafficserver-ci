@@ -61,8 +61,6 @@ pipeline {
 		stage('Initialization') {
 			agent { label 'master' }
 			steps {
-				cleanWs()
-
 				script {
 					if (! env.DISTRO) {
 						def dparts = env.JOB_BASE_NAME.split("_|-")

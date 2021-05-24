@@ -13,9 +13,6 @@ pipeline {
 	stages {
 		stage('Initialization') {
 			steps {
-				// clean before starting
-				cleanWs()
-
 				script {
 					String newname = "${GITHUB_BRANCH} ${DISTRO} ${COMPILER} ${TYPE}"
 					currentBuild.displayName = "#${BUILD_NUMBER} " + newname
