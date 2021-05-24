@@ -69,9 +69,7 @@ pipeline {
 			archiveArtifacts artifacts: 'output/**/*', fingerprint: true, allowEmptyArchive: true
 		}
 		cleanup {
-			cleanWs {
-				cleanWhenFailure(false)
-			}
+			cleanWs()
 		}
 	}
 }

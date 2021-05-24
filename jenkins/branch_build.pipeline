@@ -64,8 +64,6 @@ pipeline {
 		stage('Initialization') {
 			agent { label 'master' }
 			steps {
-				cleanWs()
-
 				script {
 					if (! env.GITHUB_BRANCH) {
 						def bparts = env.JOB_NAME.split('/')
@@ -161,6 +159,12 @@ pipeline {
 					}
 				}
 			}
+		}
+	}
+
+	post {
+		always {
+			cleanWs()
 		}
 	}
 }
