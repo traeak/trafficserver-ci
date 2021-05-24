@@ -68,7 +68,7 @@ pipeline {
 	environment { CCACHE_DIR = "/tmp/ccache" }
 
 	stages {
-		stage('Initializaztion') {
+		stage('Initialization') {
 			steps {
 				script {
 					currentBuild.displayName = "${GITHUB_BRANCH} ${DISTRO} ${COMPILER}"

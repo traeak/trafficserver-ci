@@ -58,7 +58,7 @@ pipeline {
 	agent none
 
 	stages {
-		stage('Initializaztion') {
+		stage('Initialization') {
 			agent { label 'master' }
 			steps {
 				cleanWs()

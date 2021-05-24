@@ -10,7 +10,7 @@ pipeline {
         CCACHE_DIR = "/tmp/ccache"
     }
     stages {
-        stage('Initializaztion') {
+        stage('Initialization') {
             steps {
                 buildName "#${BUILD_NUMBER} ${DISTRO} ${COMPILER} ${TYPE}"
             }
