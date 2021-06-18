@@ -56,7 +56,9 @@ pipeline {
 			steps {
 				dir('src') {
 					echo "Building"
-					sh 'source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/out_of_tree.sh'
+					sh '''
+					source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/out_of_tree.sh
+					'''
 				}
 			}
 		}

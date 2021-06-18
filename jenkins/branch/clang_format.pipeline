@@ -52,7 +52,9 @@ pipeline {
 			steps {
 				echo 'Starting build'
 				dir('src') {
-					sh 'source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/clang-format.sh'
+					sh '''
+					source ../ci/jenkins/bin/environment.sh && ../ci/jenkins/bin/clang-format.sh'
+					'''
 					echo "Skipping build"
 				}
 			}

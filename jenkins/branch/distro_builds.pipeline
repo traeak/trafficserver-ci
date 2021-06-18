@@ -17,6 +17,7 @@ def doParallelBuilds() {
 	def builders = [:]
 
 	currentBuild.result = 'SUCCESS'
+	def anyfails = FALSE
 
 	for (buildjob in buildjobs) {
 		def params = buildjob.split(',')
@@ -39,7 +40,8 @@ def doParallelBuilds() {
 							string(name: 'TYPE', value: type)
 						])
 					if ('SUCCESS' != buildres.getResult()) {
-						currentBuild.result = 'FAILURE'
+						//currentBuild.result = 'FAILURE'
+						anyfails = TRUE
 					}
 				}
 			}
@@ -47,6 +49,10 @@ def doParallelBuilds() {
 	}
 
 	parallel builders
+
+	if (anyfails) {
+		currentBuild.result = 'FAILURE'
+	}
 }
 
 String shaForBranch(url, branch) {
