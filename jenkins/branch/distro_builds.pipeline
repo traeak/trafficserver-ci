@@ -17,7 +17,7 @@ def doParallelBuilds() {
 	def builders = [:]
 
 	currentBuild.result = 'SUCCESS'
-	def anyfails = 0
+	anyfails = 'FALSE'
 
 	for (buildjob in buildjobs) {
 		def params = buildjob.split(',')
@@ -41,7 +41,7 @@ def doParallelBuilds() {
 						])
 					if ('SUCCESS' != buildres.getResult()) {
 						//currentBuild.result = 'FAILURE'
-						anyfails = 1
+						anyfails = 'TRUE'
 					}
 				}
 			}
@@ -50,7 +50,7 @@ def doParallelBuilds() {
 
 	parallel builders
 
-	if (anyfails) {
+	if ('TRUE' == anyfails) {
 		currentBuild.result = 'FAILURE'
 	}
 }
