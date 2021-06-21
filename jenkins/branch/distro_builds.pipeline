@@ -39,6 +39,7 @@ def doParallelBuilds() {
 							string(name: 'TYPE', value: type)
 						])
 					if ('SUCCESS' != buildres.getResult()) {
+						error("${jobName} build failed")
 						currentBuild.result = 'FAILURE'
 					}
 				}
