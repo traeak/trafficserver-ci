@@ -20,6 +20,12 @@
 #cd "${ATS_BUILD_BASEDIR}"
 [ -d BUILDS ] && cd BUILDS
 
+# sanitizer environment
+if [ "${FEATURES#*asan}" != "${FEATURES}" ]; then
+  ASAN_OPTIONS="detect_leaks=1:detect_odr_violation=1"
+  export ASAN_OPTIONS
+fi
+
 echo
 echo -n "Unit tests started at " && date
 ${ATS_MAKE} -j4 check VERBOSE=Y V=1 || exit 1

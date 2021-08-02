@@ -128,12 +128,6 @@ else
     export ATS_BUILD_BASEDIR="${WORKSPACE}/${BUILD_NUMBER}"
 fi
 
-# sanitizer environment
-if [ "${FEATURES#*asan}" != "${FEATURES}" ]; then
-  ASAN_OPTIONS="detect_leaks=1:detect_odr_violation=1"
-  export ASAN_OPTIONS
-fi
-
 # ccache settings
 #export CCACHE_BASEDIR=${ATS_BUILD_BASEDIR}
 #export CCACHE_COMPRESS=true
