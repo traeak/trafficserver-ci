@@ -130,7 +130,8 @@ fi
 
 # sanitizer environment
 if [ "${FEATURES#*asan}" != "${FEATURES}" ]; then
-  export ASAN_OPTIONS="detect_leaks=0:detect_odr_violation=1"
+  ASAN_OPTIONS="detect_leaks=0:detect_odr_violation=1"
+  export ASAN_OPTIONS
 fi
 
 # ccache settings
