@@ -78,6 +78,7 @@ pipeline {
 					./configure \
 						--enable-experimental-plugins \
 						--enable-example-plugins \
+						--enable-expensive-tests \
 						--prefix=/tmp/ats \
 						--enable-werror \
 						--enable-debug \
