@@ -79,9 +79,9 @@ set -x
 
 # OpenSSL needs special hackery ... Only grabbing the branch we need here... Bryan has shit for network.
 echo "Building OpenSSL with QUIC support"
-[ ! -d openssl-quic ] && git clone -b ${OPENSSL_BRANCH} --depth 1 https://github.com/quictls/openssl.git openssl-quic
+[ ! -d openssl-quic ] && git clone -b ${OPENSSL_BRANCH} https://github.com/quictls/openssl.git openssl-quic
 cd openssl-quic
-git checkout 5b312bf1bd1361216a817f338eca3830b7c15d85
+git checkout 17434561197654ceaae662dc6d655d5ebda60bcd
 ./config --prefix=${OPENSSL_PREFIX}
 ${MAKE} -j $(nproc)
 ${MAKE} install_sw
