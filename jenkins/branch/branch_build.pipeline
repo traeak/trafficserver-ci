@@ -163,14 +163,18 @@ pipeline {
 				stage('cache_tests') {
 					steps {
 						script {
-							buildJob('cache-tests', env.GITHUB_BRANCH + '/cache-tests')
+							if (Jenkins.instance.getItem('cache-tests').isBuildable()) {
+								buildJob('cache-tests', env.GITHUB_BRANCH + '/cache-tests')
+							}
 						}
 					}
 				}
 				stage('coverage') {
 					steps {
 						script {
-							buildJob('coverage', env.GITHUB_BRANCH + '/coverage')
+							if (Jenkins.instance.getItem('coverage').isBuildable()) {
+								buildJob('coverage', env.GITHUB_BRANCH + '/coverage')
+							}
 						}
 					}
 				}
