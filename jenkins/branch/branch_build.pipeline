@@ -70,6 +70,8 @@ pipeline {
 		stage('Initialization') {
 			agent { label 'master' }
 			steps {
+				echo env.JOB_NAME
+
 				script {
 					if (! env.GITHUB_BRANCH) {
 						def bparts = env.JOB_NAME.split('/')
