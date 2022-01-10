@@ -1,8 +1,8 @@
 DUMMY = false
 
 def getFolderName() {
-def array = pwd().split("/")
-	return array[array.length - 2];
+	def bparts = env.JOB_NAME.split('/')
+	return bparts[bparts.length - 2];
 }
 
 def doParallelBuilds() {
