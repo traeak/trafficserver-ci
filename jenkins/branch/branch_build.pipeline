@@ -2,8 +2,13 @@ DUMMY = false
 
 def getFolderName() {
 	def bparts = env.JOB_NAME.split('/')
-	return bparts[bparts.length - 2];
+	if (2 != bparts.length) {
+		error("Invalid branch name from " + env.JOB_NAME)
+	}
+	return bparts[0]
 }
+
+folderName = getFolderName()
 
 def doParallelBuilds() {
 
