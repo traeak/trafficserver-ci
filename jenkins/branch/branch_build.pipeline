@@ -102,14 +102,14 @@ pipeline {
 				stage('In Tree') {
 					steps {
 						script {
-							buildJob('in_tree', getFolderName() + '/in_tree')
+							buildJob('in_tree', folderName + '/in_tree')
 						}
 					}
 				}
 				stage('Out Of Tree') {
 					steps {
 						script {
-							buildJob('out_of_tree', getFolderName() + '/out_of_tree')
+							buildJob('out_of_tree', folderName + '/out_of_tree')
 						}
 					}
 				}
@@ -123,7 +123,7 @@ pipeline {
 				stage('clang format') {
 					steps {
 						script {
-							buildJob('clang_format', getFolderName() + '/clang_format')
+							buildJob('clang_format', folderName + '/clang_format')
 						}
 					}
 				}
@@ -154,28 +154,28 @@ pipeline {
 				stage('clang analyzer') {
 					steps {
 						script {
-							buildJob('clang-analyzer', getFolderName() + '/clang_analyzer')
+							buildJob('clang-analyzer', folderName + '/clang_analyzer')
 						}
 					}
 				}
 				stage('autests') {
 					steps {
 						script {
-							buildJob('autest', getFolderName() + '/autest')
+							buildJob('autest', folderName + '/autest')
 						}
 					}
 				}
 				stage('docs') {
 					steps {
 						script {
-							buildJob('docs', getFolderName() + '/docs')
+							buildJob('docs', folderName + '/docs')
 						}
 					}
 				}
 				stage('cache_tests') {
 					steps {
 						script {
-							def jobpath = getFolderName() + '/cache-tests'
+							def jobpath = folderName + '/cache-tests'
 							if (Jenkins.instance.getItem(jobpath).isBuildable()) {
 								buildJob('cache-tests', jobpath)
 							}
@@ -185,7 +185,7 @@ pipeline {
 				stage('coverage') {
 					steps {
 						script {
-							def jobpath = getFolderName() + '/coverage'
+							def jobpath = folderName + '/coverage'
 							if (Jenkins.instance.getItem(jobpath).isBuildable()) {
 								buildJob('coverage', jobpath)
 							}
