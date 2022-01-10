@@ -8,7 +8,7 @@ def doParallelBuilds() {
 	Jenkins.instance.getAllItems(Job.class).each {
 		if (it.class == org.jenkinsci.plugins.workflow.job.WorkflowJob && it.isBuildable()) {
 			def jobname = it.fullName
-			if (0 == jobname.indexOf(env.GITHUB_BRANCH + '/os-')) {
+			if (0 == jobname.indexOf('/os-')) {
 				jobnames.add(jobname)
 			}
 		}
@@ -90,28 +90,28 @@ pipeline {
 				stage('In Tree') {
 					steps {
 						script {
-							buildJob('in_tree', env.GITHUB_BRANCH + '/in_tree')
+							buildJob('in_tree', 'in_tree')
 						}
 					}
 				}
 				stage('Out Of Tree') {
 					steps {
 						script {
-							buildJob('out_of_tree', env.GITHUB_BRANCH + '/out_of_tree')
+							buildJob('out_of_tree', 'out_of_tree')
 						}
 					}
 				}
 				stage('RAT') {
 					steps {
 						script {
-							buildJob('rat', env.GITHUB_BRANCH + '/rat')
+							buildJob('rat', 'rat')
 						}
 					}
 				}
 				stage('clang format') {
 					steps {
 						script {
-							buildJob('clang_format', env.GITHUB_BRANCH + '/clang_format')
+							buildJob('clang_format', 'clang_format')
 						}
 					}
 				}
@@ -121,7 +121,7 @@ pipeline {
 		stage('Snapshot') {
 			steps {
 				script {
-					//buildJob('snapshot', env.GITHUB_BRANCH + '/snapshot')
+					//buildJob('snapshot', 'snapshot')
 					echo "Skipping snapshot"
 				}
 			}
@@ -142,39 +142,39 @@ pipeline {
 				stage('clang analyzer') {
 					steps {
 						script {
-							buildJob('clang-analyzer', env.GITHUB_BRANCH + '/clang_analyzer')
+							buildJob('clang-analyzer', 'clang_analyzer')
 						}
 					}
 				}
 				stage('autests') {
 					steps {
 						script {
-							buildJob('autest', env.GITHUB_BRANCH + '/autest')
+							buildJob('autest', 'autest')
 						}
 					}
 				}
 				stage('docs') {
 					steps {
 						script {
-							buildJob('docs', env.GITHUB_BRANCH + '/docs')
+							buildJob('docs', 'docs')
 						}
 					}
 				}
 				stage('cache_tests') {
 					steps {
 						script {
-							if (Jenkins.instance.getItem('cache-tests').isBuildable()) {
-								buildJob('cache-tests', env.GITHUB_BRANCH + '/cache-tests')
-							}
+//							if (Jenkins.instance.getItem('cache-tests').isBuildable()) {
+								buildJob('cache-tests', 'cache-tests')
+//							}
 						}
 					}
 				}
 				stage('coverage') {
 					steps {
 						script {
-							if (Jenkins.instance.getItem('coverage').isBuildable()) {
-								buildJob('coverage', env.GITHUB_BRANCH + '/coverage')
-							}
+//							if (Jenkins.instance.getItem('coverage').isBuildable()) {
+								buildJob('coverage', 'coverage')
+//							}
 						}
 					}
 				}
