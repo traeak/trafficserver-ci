@@ -102,7 +102,7 @@ pipeline {
 				stage('In Tree') {
 					steps {
 						script {
-							buildJob('in_tree', folderName + '/in_tree')
+							buildJob('in_tree', 'in_tree')
 						}
 					}
 				}
@@ -113,6 +113,11 @@ pipeline {
 						}
 					}
 				}
+			}
+		}
+	}
+}
+		/*
 				stage('RAT') {
 					steps {
 						script {
@@ -196,3 +201,4 @@ pipeline {
 		}
 	}
 }
+		*/
