@@ -5,8 +5,6 @@ def array = pwd().split("/")
 	return array[array.length - 2];
 }
 
-def folderName = getFolderName()
-
 def doParallelBuilds() {
 
 	def jobnames = []
@@ -97,14 +95,14 @@ pipeline {
 				stage('In Tree') {
 					steps {
 						script {
-							buildJob('in_tree', folderName + '/in_tree')
+							buildJob('in_tree', getFolderName() + '/in_tree')
 						}
 					}
 				}
 				stage('Out Of Tree') {
 					steps {
 						script {
-							buildJob('out_of_tree', folderName + '/out_of_tree')
+							buildJob('out_of_tree', getFolderName() + '/out_of_tree')
 						}
 					}
 				}
@@ -118,7 +116,7 @@ pipeline {
 				stage('clang format') {
 					steps {
 						script {
-							buildJob('clang_format', folderName + '/clang_format')
+							buildJob('clang_format', getFolderName() + '/clang_format')
 						}
 					}
 				}
@@ -149,28 +147,28 @@ pipeline {
 				stage('clang analyzer') {
 					steps {
 						script {
-							buildJob('clang-analyzer', folderName + '/clang_analyzer')
+							buildJob('clang-analyzer', getFolderName() + '/clang_analyzer')
 						}
 					}
 				}
 				stage('autests') {
 					steps {
 						script {
-							buildJob('autest', folderName + '/autest')
+							buildJob('autest', getFolderName() + '/autest')
 						}
 					}
 				}
 				stage('docs') {
 					steps {
 						script {
-							buildJob('docs', folderName + '/docs')
+							buildJob('docs', getFolderName() + '/docs')
 						}
 					}
 				}
 				stage('cache_tests') {
 					steps {
 						script {
-							def jobpath = folderName + '/cache-tests'
+							def jobpath = getFolderName() + '/cache-tests'
 							if (Jenkins.instance.getItem(jobpath).isBuildable()) {
 								buildJob('cache-tests', jobpath)
 							}
@@ -180,7 +178,7 @@ pipeline {
 				stage('coverage') {
 					steps {
 						script {
-							def jobpath = folderName + '/coverage'
+							def jobpath = getFolderName() + '/coverage'
 							if (Jenkins.instance.getItem(jobpath).isBuildable()) {
 								buildJob('coverage', jobpath)
 							}
