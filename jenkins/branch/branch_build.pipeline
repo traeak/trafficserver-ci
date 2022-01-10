@@ -1,5 +1,12 @@
 DUMMY = false
 
+def getFolderName() {
+def array = pwd().split("/")
+	return array[array.length - 2];
+}
+
+def folderName = getFolderName()
+
 def doParallelBuilds() {
 
 	def jobnames = []
@@ -8,7 +15,7 @@ def doParallelBuilds() {
 	Jenkins.instance.getAllItems(Job.class).each {
 		if (it.class == org.jenkinsci.plugins.workflow.job.WorkflowJob && it.isBuildable()) {
 			def jobname = it.fullName
-			if (0 == jobname.indexOf('/os-')) {
+			if (0 == jobname.indexOf('os-')) {
 				jobnames.add(jobname)
 			}
 		}
@@ -90,14 +97,14 @@ pipeline {
 				stage('In Tree') {
 					steps {
 						script {
-							buildJob('in_tree', 'in_tree')
+							buildJob('in_tree', folderName + '/in_tree')
 						}
 					}
 				}
 				stage('Out Of Tree') {
 					steps {
 						script {
-							buildJob('out_of_tree', 'out_of_tree')
+							buildJob('out_of_tree', folderName + '/out_of_tree')
 						}
 					}
 				}
@@ -111,7 +118,7 @@ pipeline {
 				stage('clang format') {
 					steps {
 						script {
-							buildJob('clang_format', 'clang_format')
+							buildJob('clang_format', folderName + '/clang_format')
 						}
 					}
 				}
@@ -142,39 +149,41 @@ pipeline {
 				stage('clang analyzer') {
 					steps {
 						script {
-							buildJob('clang-analyzer', 'clang_analyzer')
+							buildJob('clang-analyzer', folderName + '/clang_analyzer')
 						}
 					}
 				}
 				stage('autests') {
 					steps {
 						script {
-							buildJob('autest', 'autest')
+							buildJob('autest', folderName + '/autest')
 						}
 					}
 				}
 				stage('docs') {
 					steps {
 						script {
-							buildJob('docs', 'docs')
+							buildJob('docs', folderName + '/docs')
 						}
 					}
 				}
 				stage('cache_tests') {
 					steps {
 						script {
-//							if (Jenkins.instance.getItem('cache-tests').isBuildable()) {
-								buildJob('cache-tests', 'cache-tests')
-//							}
+							def jobpath = folderName + '/cache-tests'
+							if (Jenkins.instance.getItem(jobpath).isBuildable()) {
+								buildJob('cache-tests', jobpath)
+							}
 						}
 					}
 				}
 				stage('coverage') {
 					steps {
 						script {
-//							if (Jenkins.instance.getItem('coverage').isBuildable()) {
-								buildJob('coverage', 'coverage')
-//							}
+							def jobpath = folderName + '/coverage'
+							if (Jenkins.instance.getItem(jobpath).isBuildable()) {
+								buildJob('coverage', jobpath)
+							}
 						}
 					}
 				}
