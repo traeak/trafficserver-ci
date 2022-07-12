@@ -20,7 +20,8 @@ pipeline {
 						currentBuild.description = env.SHA1
 					}
 					if (env.AUTEST_SHARD) {
-						String[] arr = env.AUTEST_SHARD.split('of')
+						println(env.AUTEST_SHARD)
+						def arr = env.AUTEST_SHARD.split('of')
 						if (2 == arr.length) {
 							shard = arr[0] as int
 							shardcnt = arr[1] as int
