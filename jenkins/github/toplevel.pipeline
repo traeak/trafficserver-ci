@@ -1,5 +1,25 @@
 TOP_JOB_DESC = "Builds:\\n"
 
+// True if docs only change
+def docsOnly() {
+	def target_branch = env.CHANGE_TARGET;
+	def pr_ref        = env.BRANCH_NAME;
+
+	if (target_branch == null) {
+		echo "No target branch defined...";
+		return false;
+	}
+
+	def TARGET = sh(returnStdout: true, script: "git rev-parse upstream/${target_branch}").trim()
+	def HEAD   = sh(returnStdout: true, script: "git rev-parse origin/${pr_ref}").trim()
+
+	echo "Checking for source changes between ${TARGET} (${target_branch}) and ${HEAD} (${pr_ref})..."
+	
+	def toplist = sh(returnStdout: true, script: "git diff-tree --no-commit-id --name-only ${TARGET}..${HEAD}").trim()
+	
+	return toplist == "doc"
+}
+
 String buildJob(String ghcontext, String jobName, String shard='') {
 		setGitHubPullRequestStatus(context: ghcontext, message: 'Building', state: 'PENDING')
 		
